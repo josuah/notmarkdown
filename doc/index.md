@@ -94,6 +94,9 @@ Yes, of course!  In fact, there is no default theme, only an example provided
 in the ./doc/ of the git repo of NotMarkdown, but all style, layout, header...
 are provided by you in head.html or head.gph.
 
+NotWiki websites can be something entirely different than documentation sites,
+such as blogs, newspapers, association/enterprise presentation...
+
 
 How does NotMarkdown differ with Markdown?
 ------------------------------------------
