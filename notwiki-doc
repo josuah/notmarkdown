@@ -9,5 +9,5 @@ find "$@" -name "*.md" | while IFS= read -r file; do
 	echo "$file"
 	mkdir -p "$dest/$(dirname "$x")"
 	cp "$x" "$dest/$(dirname "$x")"
-	notmarkdown-"$ext" "$x" | cat head.$ext - >"$dest/${x%.*}.$ext"
+	notmarkdown-"$ext" "$x" | cat head.$ext - >"$dest/${x%.md}.$ext"
 done
