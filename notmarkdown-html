@@ -33,9 +33,9 @@ sub(REG["code"], "", $1) {
 	next
 }
 
-match($1, /\[.*\]:/) {
+match($0, /^\[.*\]:/) {
 	NEW = 1
-	REF[tolower(substr($1, RSTART + 1, RLENGTH - 3))] = $2
+	REF[tolower(substr($0, RSTART + 1, RLENGTH - 3))] = $2
 	next
 }
 
