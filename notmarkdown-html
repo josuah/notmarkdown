@@ -101,7 +101,8 @@ function convert_links_simple(s,
 	s = ""
 	while (match(tail, /\[[^]]*\]\[[^]]*\]/)) {
 		s = s substr(tail, 1, RSTART - 1)
-		name = ref = tolower(substr(tail, RSTART + 1, RLENGTH - 2))
+		name = substr(tail, RSTART + 1, RLENGTH - 2)
+		ref = tolower(name)
 		sub(/.*\]\[/, "", ref)
 		sub(/\]\[.*/, "", name)
 		s = s sprintf("<a href=\"%s\">%s</a>", REF[ref], name)
