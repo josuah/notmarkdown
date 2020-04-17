@@ -1,0 +1,93 @@
+#!/usr/bin/awk -f
+# convert a twtxt source to an atom feed
+
+function esc(s)
+{
+	gsub("&",  "\\&amp;",  s)
+	gsub("<",  "\\&lt;",   s)
+	gsub(">",  "\\&gt;",   s)
+	gsub("\"", "\\&quot;", s)
+	return s
+}
+
+function parse_twtxt(s, twt)
+{
+	twt["text"] = s
+	sub("[^\t]*\t", "", twt["text"])
+	twt["date"] = s
+	sub("\t.*", "", twt["date"])
+
+	while (match(s, "[a-z]+://[^> \"]+")) {
+		l = substr(s, RSTART, RLENGTH)
+		s = substr(s, RSTART + RLENGTH)
+		twt["links"] = twt["links"] " " l
+	}
+}
+
+function print_links(s,
+	links, l)
+{
+	split(s, links, " ")
+	for (l in links)
+		print("\t<link rel=\"alternate\" href=\"" esc(links[l]) "\"/>")
+}
+
+function print_entry(twt)
+{
+	print("<entry>")
+	print("\t<id>" esc(twt["date"]) "</id>")
+	print("\t<title type=\"text\">" esc(twt["text"]) "</title>")
+	print("\t<summary type=\"text\">" esc(twt["text"]) "</summary>")
+	print_links(twt["links"])
+	print("\t<updated>" esc(twt["date"]) "</updated>")
+	print("\t<published>" esc(twt["date"]) "</published>")
+	print("</entry>")
+}
+
+function print_header(conf)
+{
+	print("<id>" esc(conf["uri"]) "</id>")
+	print("<title type=\"text\">News for "dom"</title>")
+	print("<updated>$(TZ= date +%Y-%m-%dT%H:%M:%SZ)</updated>")
+	print("<author><name>" esc(C["author"]) "</name></author>")
+	print("<link rel=\"alternate\" type=\"text/html\" href=\"" esc(conf["uri"]) "\"/>")
+	print("<link rel=\"self\" type=\"application/atom+xml\" href=\"" esc(conf["uri"]) "/atom.xml\"/>")
+}
+
+function print_twtxt(conf)
+{
+	print("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+	print("<feed xmlns=\"http://www.w3.org/2005/Atom\" xml:lang=\"en\">")
+	print_header(conf)
+	while ((getline <conf["twtxt"]) > 0) {
+		if ($0 ~ "^#.*")
+			continue
+		print("")
+		parse_twtxt($0, TWT)
+		print_entry(TWT)
+		delete TWT
+	}
+	print("")
+	print("</feed>")
+}
+
+function usage()
+{
+	print("usage: notwiki-atom twtxt.txt https://example.com/ \"Agent Smith\"")
+	exit(1)
+}
+
+BEGIN {
+	if (ARGC != 1 + 3)
+		usage()
+
+	CONF["twtxt"] = ARGV[1]
+	CONF["uri"] = CONF["dom"] = ARGV[2]
+	CONF["author"] = ARGV[3]
+
+	sub("^[^:]*://", "", CONF["dom"])
+	sub("/.*", "", CONF["dom"])
+	sub("/*$", "", CONF["uri"])
+
+	print_twtxt(CONF)
+}

@@ -1,0 +1,102 @@
+#!/usr/bin/awk -f
+# convert links from a notmarkdown document to index.gph format
+
+BEGIN {
+	EXT["gif"] = "g"
+	EXT["jpg"] = EXT["jpeg"] = EXT["png"] = "I"
+	EXT["cgi"] = EXT["dcgi"] = EXT["gph"] = "1"
+}
+
+# match the extension, and default to text/plain
+
+function file_ext_type(link,
+	lower, x)
+{
+	lower = tolower(link["raw"])
+
+	if (lower ~ "/$")
+		return "1"
+	for (x in EXT)
+		if (lower ~ "\\."x"$")
+			return EXT[x]
+	return "0"
+}
+
+function parse_uri(s, link,
+	i)
+{
+	link["type"] = "0"
+	link["path"] = "/"
+
+	if ((i = index(s, "://")) == 0)
+		return 0
+
+	link["proto"] = substr(s, 1, i - 1)
+	s = substr(s, i + 3)
+
+	if ((i = index(s, "/"))) {
+		link["host"] = substr(s, 1, i - 1)
+		s = substr(s, i + 1)
+	} else {
+		link["host"] = s
+		s = ""
+	}
+
+	if ((i = index(link["host"], ":"))) {
+		link["port"] = substr(link["host"], i + 1)
+		link["host"] = substr(link["host"], 1, i - 1)
+	}
+
+	link["path"] = (s ? s : "/")
+
+	return 1
+}
+
+function pasre_gopher_type(link,
+	t)
+{
+	if (link["path"] == "/")
+		return "0"
+	t = substr(link["path"], 2, 1)
+	link["path"] = substr(link["path"], 3)
+}
+
+function parse_link(s, link)
+{
+	link["host"] = "server"
+	link["port"] = "port"
+	link["type"] = "h"
+	link["desc"] = s
+	link["path"] = "URL:" s
+
+	if (s ~ "^/") {
+		link["type"] = file_ext_type(link)
+		link["path"] = s
+	}
+
+	if (parse_uri(s, link)) {
+		if (link["proto"] == "telnet")
+			link["type"] = "8"
+		if (link["proto"] == "gopher")
+			link["type"] = parse_gopher_type(link)
+	}
+}
+
+match($1, /^\[.*\]:/) {
+	LINK["ref"] = substr($1, RSTART + 1, RLENGTH - 3)
+	sub(/^\[.*\]: */, "", $0)
+	parse_link($0, LINK)
+	for (X in LINK)
+		gsub(/\|/, "\\|", LINK[X])
+
+	$0 = sprintf("[%s|[%s]: %s|%s|%s|%s]",
+	  LINK["type"], LINK["ref"], LINK["desc"], LINK["path"],
+	  LINK["host"], LINK["port"])
+
+	delete LINK
+}
+
+{
+	gsub("\t", "        ")
+	print
+}
