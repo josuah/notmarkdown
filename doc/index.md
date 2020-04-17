@@ -32,8 +32,8 @@ It does not support editing files directly through the website: it is one shell
 script calling one awk script on every page for generating a site in various
 formats:
 
- * html - traditionnal format of the web, through the notmarkdown-html backend.
- * gph - [[geomyidae]](1)'s format for gopher, through the notmarkdow-gph backend.
+ * html - traditionnal format of the Web, through the notmarkdown-html backend.
+ * gph - [[geomyidae]](1)'s format for Gopher, through the notmarkdow-gph backend.
 
 To add a new converter backend, add in $PATH a script called notmarkdown-$ext
 that reads NotMarkdown from stdin and send the target format to stdout.  For
@@ -60,10 +60,10 @@ to /wiki/page-name/ (with a trailing '/', important for markdown-gph(1)).
 How to handle vHosts on Gopher, like for the Web?
 -------------------------------------------------
 No vHosts on Gopher: multiple domain with the same destination point to the same
-website, unlike in the web when you can redirect them as you wish.
+website, unlike in the Web when you can redirect them as you wish.
 
 For instance if //doc.example.com/ and //git.example.com/ point to the same server,
-gopher will pick the same /index.gph for both.  A solution is to always use prefixes,
+geomyidae(1) will pick the same /index.gph for both.  A solution is to always use prefixes,
 like //doc.example.com/doc/ or //git.example.com/git/.
 
 
@@ -109,10 +109,11 @@ Only the second is present in Markdown.
 
 It is a subset of Markdown, which means that there is fewer conversion done:
 
- * The inline links are ignored (required for gopher, line-based), you will
-   have to convert them to one of the two syntax above.
+ * The inline links are ignored (required for Gopher, line-based links), you
+   will have to convert them to one of the two syntax above.
  * The _ character is not special in any way,
  * Unnumbered lists are only using the asterisks (*), which is the only
    special character inside the paragraphs.
 
 The NotMarkdown format is further described in the notmarkdown(5) manpage.
+
