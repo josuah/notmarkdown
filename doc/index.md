@@ -4,9 +4,7 @@ NotWiki
 [[NotWiki]] is a very simple site generator tool, that support a simple subset
 of markdown in which this document is formatted: NotMarkdown.
 
-It can generate a complete website
-
-[notwiki]: http://code.z0.is/notwiki/
+[notwiki]: //code.z0.is/notwiki/
 
 
 How to generate a website?
@@ -28,8 +26,8 @@ The head.$ext (head.html, head.gph) file is added at the top of the converted
 document.
 
 
-How does NotWiki works?
------------------------
+How does NotWiki work?
+----------------------
 It does not support editing files directly through the website: it is one shell
 script calling one awk script on every page for generating a site in various
 formats:
@@ -46,26 +44,27 @@ instance, a notmarkdown-txt backend that print the document unchanged.
 
 How to keep links compatible between HTTP and Gopher?
 -----------------------------------------------------
-By removing everything specific to the protocol from the links, and publishing
-both contents under a same path on both side:
+Strip the protocol (http:, https:, gopher:) from all your own links, and eventually
+remove the domain name as well.
 
- * Strip the http:, https:, or gopher: from all links, this will give links
-   like //example.com/wiki/, which are still valid in HTML and means "visit the
-   page keeping the same protocol".  This is supported by notmarkdown-gph(1).
+//example.com/wiki/ and /wiki/ both get converted to:
 
- * Alternatively, strip up to the whole domain part, useful for internal links
-   to keep only the path, like /wiki/. This is also supported by HTML directly,
-   and by notgopher-gph(1).
+ * https://example.com/wiki/index.gph (on web browser with HTTPS)
+ * http://example.com/wiki/index.gph (on web browser with HTTP)
+ * gopher://example.com/wiki/index.gph (on gopher browsers)
 
- * Instead of /wiki/page-name.gph, use /wiki/page-name/index.gph, and link
-   to /wiki/page-name/ with a trailing '/' (important for markdown-gph(1)).
-   On HTTP, the web server will pick ./index.html, on gopher, geomyidae(1) will
-   pick ./index.gph, so everythng fits.
+So instead of /wiki/page-name.md, use /wiki/page-name/index.md, and use links
+to /wiki/page-name/ (with a trailing '/', important for markdown-gph(1)).
 
-Note that Gopher does not have vHosts, so you should mind that if the link
-//doc.example.com/ and //git.example.com/ points to the same server, gopher
-will pick the same /index.gph for both.  A solution to that is to publish
-to always use prefixes, like //doc.example.com/doc/ or //git.example.com/git/.
+
+How to handle vHosts on Gopher, like for the Web?
+-------------------------------------------------
+No vHosts on Gopher: multiple domain with the same destination point to the same
+website, unlike in the web when you can redirect them as you wish.
+
+For instance if //doc.example.com/ and //git.example.com/ point to the same server,
+gopher will pick the same /index.gph for both.  A solution is to always use prefixes,
+like //doc.example.com/doc/ or //git.example.com/git/.
 
 
 What can I do with it?
