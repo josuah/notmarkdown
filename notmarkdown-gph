@@ -71,8 +71,8 @@ function parse_link(s, link)
 	}
 
 	if (s ~ "^/") {
-		link["type"] = file_ext_type(link["path"])
 		link["path"] = s
+		link["type"] = file_ext_type(link["path"])
 		return
 	}
 
