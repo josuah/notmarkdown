@@ -52,7 +52,7 @@ function parse_uri(s, link,
 	return 1
 }
 
-function pasre_gopher_type(link,
+function parse_gopher_type(link,
 	t)
 {
 	if (link["path"] == "/")
