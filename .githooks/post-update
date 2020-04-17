@@ -1,0 +1,9 @@
+#!/bin/sh -ex
+# deploy the website to /srv
+
+tmp=$(git-hooks-workdir "$@")
+trap 'rm -rf "$tmp"' INT TERM EXIT HUP
+cd "$tmp/doc"
+
+notwiki-doc html "/srv/www/htdocs/code/notwiki" *
+notwiki-doc gph  "/srv/gopher/notwiki" *
