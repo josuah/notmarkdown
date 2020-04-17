@@ -114,6 +114,6 @@ It is a subset of Markdown, which means that there is fewer conversion done:
    have to convert them to one of the two syntax above.
  * The _ character is not special in any way,
  * Unnumbered lists are only using the asterisks (*), which is the only
-   special character.
+   special character inside the paragraphs.
 
 A description of the NotMarkdown is provided in the notmarkdown(5) manpage.
