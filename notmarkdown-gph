@@ -28,11 +28,10 @@ function parse_uri(s, link,
 	link["type"] = "0"
 	link["path"] = "/"
 
-	if ((i = index(s, "://")) == 0)
-		return 0
-
-	link["proto"] = substr(s, 1, i - 1)
-	s = substr(s, i + 3)
+	if ((i = index(s, "://")) > 0) {
+		link["proto"] = substr(s, 1, i - 1)
+		s = substr(s, i + 3)
+	}
 
 	if ((i = index(s, "/"))) {
 		link["host"] = substr(s, 1, i - 1)
@@ -47,18 +46,17 @@ function parse_uri(s, link,
 		link["host"] = substr(link["host"], 1, i - 1)
 	}
 
-	link["path"] = (s ? s : "/")
-
-	return 1
+	link["path"] = "/" s
 }
 
-function parse_gopher_type(link,
-	t)
+function strip_gopher_type(link)
 {
-	if (link["path"] == "/")
-		return "0"
-	t = substr(link["path"], 2, 1)
-	link["path"] = substr(link["path"], 3)
+	if (link["path"] == "/") {
+		link["type"] = "/"
+	} else {
+		link["type"] = substr(link["path"], 2, 1)
+		link["path"] = substr(link["path"], 3)
+	}
 }
 
 function parse_link(s, link)
@@ -69,17 +67,23 @@ function parse_link(s, link)
 	link["desc"] = s
 	link["path"] = "URL:" s
 
+	if (s ~ "^//") {
+		link["type"] = file_ext_type(link)
+		parse_uri(substr(s, 3), link)
+		return
+	}
+
 	if (s ~ "^/") {
 		link["type"] = file_ext_type(link)
 		link["path"] = s
+		return
 	}
 
-	if (parse_uri(s, link)) {
-		if (link["proto"] == "telnet")
-			link["type"] = "8"
-		if (link["proto"] == "gopher")
-			link["type"] = parse_gopher_type(link)
-	}
+	parse_uri(s, link)
+	if (link["proto"] == "telnet")
+		link["type"] = "8"
+	if (link["proto"] == "gopher")
+		strip_gopher_type(link)
 }
 
 match($1, /^\[.*\]:/) {
