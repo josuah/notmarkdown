@@ -5,6 +5,7 @@
 # is passed just escaped without other change.
 
 BEGIN {
+	# the default is text, "0"
 	EXT["gif"] = "g"
 	EXT["jpg"] = EXT["jpeg"] = EXT["png"] = "I"
 	EXT["cgi"] = EXT["dcgi"] = EXT["gph"] = "1"
@@ -12,15 +13,13 @@ BEGIN {
 
 # match the extension, and default to text/plain
 
-function file_ext_type(link,
-	lower, x)
+function file_ext_type(s,
+	x)
 {
-	lower = tolower(link["raw"])
-
-	if (lower ~ "/$")
+	if (s ~ "/$")
 		return "1"
 	for (x in EXT)
-		if (lower ~ "\\."x"$")
+		if (tolower(s) ~ "\\."x"$")
 			return EXT[x]
 	return "0"
 }
@@ -28,9 +27,6 @@ function file_ext_type(link,
 function parse_uri(s, link,
 	i)
 {
-	link["type"] = "0"
-	link["path"] = "/"
-
 	if ((i = index(s, "://")) > 0) {
 		link["proto"] = substr(s, 1, i - 1)
 		s = substr(s, i + 3)
@@ -55,7 +51,7 @@ function parse_uri(s, link,
 function strip_gopher_type(link)
 {
 	if (link["path"] == "/") {
-		link["type"] = "/"
+		link["type"] = "1"
 	} else {
 		link["type"] = substr(link["path"], 2, 1)
 		link["path"] = substr(link["path"], 3)
@@ -66,41 +62,44 @@ function parse_link(s, link)
 {
 	link["host"] = "server"
 	link["port"] = "port"
-	link["type"] = "h"
 	link["desc"] = s
-	link["path"] = "URL:" s
 
 	if (s ~ "^//") {
-		link["type"] = file_ext_type(link)
 		parse_uri(substr(s, 3), link)
+		link["type"] = file_ext_type(link["path"])
 		return
 	}
 
 	if (s ~ "^/") {
-		link["type"] = file_ext_type(link)
+		link["type"] = file_ext_type(link["path"])
 		link["path"] = s
 		return
 	}
 
 	parse_uri(s, link)
-	if (link["proto"] == "telnet")
+	if (link["proto"] == "telnet") {
 		link["type"] = "8"
-	if (link["proto"] == "gopher")
+	} else if (link["proto"] == "gopher") {
 		strip_gopher_type(link)
+	} else {
+		link["type"] = "h"
+		link["path"] = "URL:" s
+	}
 }
 
-match($1, /^\[.*\]:/) {
+match($0, /^\[.*\]:/) {
 	LINK["ref"] = substr($1, RSTART + 1, RLENGTH - 3)
 	sub(/^\[.*\]: */, "", $0)
 	parse_link($0, LINK)
 	for (X in LINK)
 		gsub(/\|/, "\\|", LINK[X])
 
-	$0 = sprintf("[%s|[%s]: %s|%s|%s|%s]",
+	printf("[%s|[%s]: %s|%s|%s|%s]\n",
 	  LINK["type"], LINK["ref"], LINK["desc"], LINK["path"],
 	  LINK["host"], LINK["port"])
 
 	delete LINK
+	next
 }
 
 {

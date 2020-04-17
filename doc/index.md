@@ -116,4 +116,4 @@ It is a subset of Markdown, which means that there is fewer conversion done:
  * Unnumbered lists are only using the asterisks (*), which is the only
    special character inside the paragraphs.
 
-A description of the NotMarkdown is provided in the notmarkdown(5) manpage.
+The NotMarkdown format is further described in the notmarkdown(5) manpage.

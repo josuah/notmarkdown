@@ -1,12 +1,12 @@
-VERSION = 0.0.1
+VERSION = 0.0.2
 PREFIX = /usr/local
 MANPREFIX = ${PREFIX}/share/man
- 
+
+rel = notwiki-${VERSION}
 bin = notmarkdown-gph notmarkdown-html notwiki-atom notwiki-doc
 man = ${man1} ${man5}
 man1 = notwiki-doc.1
 man5 = notmarkdown.5
-rel = notwiki-${VERSION}
 
 all:
 
