@@ -1,6 +1,9 @@
 #!/usr/bin/awk -f
 # convert links from a notmarkdown document to index.gph format
 
+# This script only convert the "[ref]:" links.  The rest of the text
+# is passed just escaped without other change.
+
 BEGIN {
 	EXT["gif"] = "g"
 	EXT["jpg"] = EXT["jpeg"] = EXT["png"] = "I"
@@ -101,6 +104,7 @@ match($1, /^\[.*\]:/) {
 }
 
 {
-	gsub("\t", "        ")
+	gsub(/\t/, "        ")
+	sub(/^[[t]/, "t&")
 	print
 }
