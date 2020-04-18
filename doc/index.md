@@ -4,6 +4,8 @@ NotWiki
 [[NotWiki]] is a very simple site generator tool, that support a simple subset
 of markdown in which this document is formatted: NotMarkdown.
 
+It supports publication of the same .md files for both http+html and gopher+gph.
+
 [notwiki]: //code.z0.is/notwiki/
 
 
