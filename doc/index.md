@@ -84,10 +84,10 @@ but self-hosted.
 
 ### A wiki for an existing website/gopherhole
 
-It is convert pages and copies them to the destination directory, which can
-have content generated from multiple source. There is no ./index.html/gph
-generated (unless you added a ./index.md file yourself), so it will can be
-used alongside with other content.
+> It is convert pages and copies them to the destination directory, which can
+> have content generated from multiple source. There is no ./index.html/gph
+> generated (unless you added a ./index.md file yourself), so it will can be
+> used alongside with other content.
 
 
 Can I change the default theme?

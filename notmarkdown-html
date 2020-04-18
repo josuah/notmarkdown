@@ -12,6 +12,7 @@ BEGIN {
 	REG["ulist"] = "^\\* "
 	REG["olist"] = "^[0-9]+. "
 	REG["title"] = "^#+ "
+	REG["quote"] = "^> "
 	REG["code"]  = "^\t"
 }
 
@@ -50,7 +51,7 @@ $0 == "" {
 	sub("^ *", "")
 	sub(" *$", "")
 	for (R in REG)
-		NEW = or(NEW, $0 ~ REG[R])
+		NEW = (NEW || $0 ~ REG[R])
 }
 
 NEW == 1 {
@@ -180,27 +181,26 @@ function convert_text(s)
 function print_line(line, i,
 	s)
 {
-	if (LINE[i] ~ REG["code"]) {
+	if (sub(REG["code"], "", LINE[i])) {
 		s = print_hook(LINE[i], "pre")
-		sub(REG["code"], "", s)
 		print(s)
 
-	} else if (LINE[i] ~ REG["ulist"]) {
+	} else if (sub(REG["ulist"], "", LINE[i])) {
 		s = print_hook(LINE[i], "ul")
-		sub(REG["ulist"], "", s)
 		printf("<li>%s</li>\n", convert_text(s))
 
-	} else if (LINE[i] ~ REG["olist"]) {
+	} else if (sub(REG["olist"], "", LINE[i])) {
 		s = print_hook(LINE[i], "ol")
-		sub(REG["olist"], "", s)
 		printf("<li>%s</li>\n", convert_text(s))
 
-	} else if (LINE[i] ~ REG["title"]) {
-		s = print_hook(LINE[i], "")
-		match(s, "^#+")
-		sub("^#+ *", "", s)
-		lv = RLENGTH
+	} else if (match(LINE[i], REG["title"])) {
+		lv = RLENGTH - 1
+		s = print_hook(substr(LINE[i], RLENGTH + 1))
 		printf("\n\n<h%d>%s</h%d>\n\n", lv, convert_text(s), lv)
+
+	} else if (sub(REG["quote"], "", LINE[i])) {
+		s = print_hook(LINE[i], "blockquote")
+		printf("%s\n", convert_text(s))
 
 	} else {
 		s = print_hook(LINE[i], "")
