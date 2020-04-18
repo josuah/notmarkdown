@@ -81,7 +81,7 @@ on every commit, a [[git-hook]] regenerates the documentation using NotWiki.
 This permits to have the documentation bound to the code akin to Github's wikis
 but self-hosted.
 
-[git-hook]: //josuah.net/wiki/git-hooks/
+[git-hook]: //josuah.net/wiki/git/hooks/
 
 ### A wiki for an existing website/gopherhole
 
