@@ -1,0 +1,140 @@
+.Dd $Mdocdate: April 18 2020$
+.Dt NOTMARKDOWN 5
+.Os
+.
+.
+.Sh NAME
+.
+.Nm NotMarkdown
+.Nd a subset of markdown used by notwiki
+.
+.
+.Sh DESCRIPTION
+.
+The
+.Nm
+format is a subset of the markdown format, with fewer, and unambiguous 
+conversion rules:
+.
+.
+.Ss Block Syntax
+.
+.Nm
+uses a first pass of line-based syntax, forming blocks such as paragraphs, list 
+or headings.
+The following syntax occurences provoke switching from the current block to a
+new block:
+.
+.Bl -bullet -width 0n
+.
+.It
+Empty lines:
+.Bd -literal -offset 6n
+Line of the first block.
+
+Line of the second block.
+.Ed
+.
+.It
+Lines with only
+.Sq =
+or
+.Sq - ,
+which set the previous block to h1/h2.
+.Bd -literal -offset 6n
+This is a setext-style heading
+==============================
+This is part of the paragraph, there may be a
+blank line above.
+.Ed
+.
+.El
+.
+.Ss Special Patterns
+.
+These patterns are matched at line start, opening a new block:
+.
+.Bl -tag -width 14n
+.
+.It Ic *
+Unordered lists.
+Any space before, at least one after.
+.
+.It Ic 1. No / Ic 2. No / ...
+Ordered lists.
+Any space before, at least one after.
+.
+.It Ic # , Ic ## , Ic ### No ...
+Headings.
+Any space before, at least one after.
+.
+.It Ic [ref]:
+Link reference. 
+No space before, at least one after.
+.
+.It Ic \et
+Literal block line.
+No space before, everything else is printed without conversion.
+.
+.El
+.
+.
+.Ss Inline syntnax
+.
+Within each block, these syntax element are matched:
+.
+.Bl -tag -width 14n
+.
+.It Ic *text*
+Italic text.
+.
+.It Ic **text**
+Bold text.
+.
+.It Ic ***text***.
+Bold italic text.
+.
+.It Ic [desc][ref]
+Link with description
+.Dq desc
+refering to
+.Dq ref .
+.
+.It Ic [[descref]]
+Link with description
+.Dq descref
+refering to
+.Dq descref .
+.
+.It Ic ![alt][ref]
+Image with alt-text
+.Dq alt
+and refernce
+.Dq ref
+ror source.
+.
+.
+.Sh EXAMPLES
+.
+The source repository comes with a
+.Pa doc/index.md
+file that is a complete document example.
+.
+.
+.Sh SEE ALSO
+.
+.Bl -ohang -compact
+.
+.It
+.Xr notwiki-doc 1
+.
+.It
+.Lk http://code.z0.is/notwiki/ "NotWiki's wiki"
+.
+.El
+.
+.
+.Sh AUTHORS
+.
+.An Josuah Demangeon
+.Aq Mt me@josuah.net

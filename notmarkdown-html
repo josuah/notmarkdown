@@ -111,7 +111,7 @@ function convert_links_simple(s,
 	return s tail
 }
 
-# [[ref==desc]]
+# [[refdesc]]
 
 function convert_links_double(s,
 	tail, name, ref)
@@ -128,7 +128,7 @@ function convert_links_double(s,
 	return s tail
 }
 
-# ![alt-text][ref]
+# ![alttext][ref]
 
 function convert_images(s,
 	tail, name, ref)
