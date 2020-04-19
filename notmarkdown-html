@@ -167,8 +167,8 @@ function convert_syntax(s, reg, len, tag,
 
 function convert_text(s)
 {
-	s = convert_syntax(s, "[*][*][^*]*[*][*]", 2, "strong")
-	s = convert_syntax(s, "[*][^*]*[*]", 1, "em")
+	s = convert_syntax(s, "[*][*][^ ][^*]*[^ ][*][*]", 2, "strong")
+	s = convert_syntax(s, "[*][^ ][^*]*[^ ][*]", 1, "em")
 	s = convert_images(s)
 	s = convert_links_simple(s)
 	s = convert_links_double(s)
