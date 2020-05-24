@@ -109,11 +109,6 @@ function fold_line(s, len)
 	return s
 }
 
-function fold_has_ref(s, len)
-{
-	return match(fold_line(s, len), /\[[^]]*\]/)
-}
-
 # assert that [ref] is smaller than [replacement text]
 
 function print_text_line(pref, str, len,
@@ -122,7 +117,7 @@ function print_text_line(pref, str, len,
 	len -= length(pref)
 
 	for (n = 0;; n++) {
-		if (!fold_has_ref(str, len - length(out)))
+		if (!match(fold_line(str, len - length(out)), /\[[^]]+\]/))
 			break
 		REF[ref = substr(str, RSTART + 1, RLENGTH - 2)]++
 		out = out substr(str, 1, RSTART - 1) "[" TEXT[ref] "]"
