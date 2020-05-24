@@ -6,8 +6,9 @@ ext=${1:?$u} dest=${2:?$u}
 shift 2
 
 find "$@" -name "*.md" | while IFS= read -r file; do
-	echo "$file"
+	echo "$file" >&2
 	mkdir -p "$dest/$(dirname "$file")"
 	cp "$file" "$dest/$(dirname "$file")"
-	notmarkdown-"$ext" "$file" | cat head.$ext - >"$dest/${file%.md}.$ext"
+	exec >"$dest/${file%.md}.$ext"
+	notmarkdown "$file" | notmarkdown-"$ext" | cat head.$ext -
 done

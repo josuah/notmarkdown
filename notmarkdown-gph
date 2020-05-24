@@ -5,6 +5,8 @@
 # is passed just escaped without other change.
 
 BEGIN {
+	HEADER = 1
+
 	# the default is text, "0"
 	EXT["gif"] = "g"
 	EXT["jpg"] = EXT["jpeg"] = EXT["png"] = "I"
@@ -87,27 +89,140 @@ function parse_link(s, link)
 	}
 }
 
-match($0, /^\[.*\]:/) {
-	LINK["ref"] = substr($1, RSTART + 1, RLENGTH - 3)
-	sub(/^\[.*\]: */, "", $0)
-	parse_link($0, LINK)
-	for (X in LINK)
-		gsub(/\|/, "\\|", LINK[X])
+function print_link_item(link, line,
+	item)
+{
+	parse_link(link, item)
+	item["line"] = line
+	for (i in item)
+		gsub(/\|/, "\\|", item[i])
+	printf("[%s|%s|%s|%s|%s]\n", item["type"], item["line"], item["path"],
+	  item["host"], item["port"])
+}
 
-	printf("[%s|[%s]: %s|%s|%s|%s]\n",
-	  LINK["type"], LINK["ref"], LINK["desc"], LINK["path"],
-	  LINK["host"], LINK["port"])
+function fold_line(s, len)
+{
+	s = substr(s, 1, len + 1)
+	sub(" *$", "", s)
+	if (length(s) == len + 1)
+		sub(" *[^ ]*$", "", s)
+	return s
+}
 
-	delete LINK
+function fold_has_ref(s, len)
+{
+	return match(fold_line(s, len), /\[[^]]*\]/)
+}
+
+# assert that [ref] is smaller than [replacement text]
+
+function print_text_line(pref, str, len,
+	out, fold, ref, i)
+{
+	len -= length(pref)
+
+	for (n = 0;; n++) {
+		if (!fold_has_ref(str, len - length(out)))
+			break
+		REF[ref = substr(str, RSTART + 1, RLENGTH - 2)]++
+		out = out substr(str, 1, RSTART - 1) "[" TEXT[ref] "]"
+		str = substr(str, RSTART + RLENGTH)
+	}
+	fold = fold_line(str, len - length(out))
+	out = out fold
+	str = substr(str, length(fold) + 1)
+	sub("^ *", "", str)
+
+	if (n == 1)
+		print_link_item(LINK[ref], pref out)
+	if (n != 1)
+		print(pref out)
+	if (n >= 2)
+		for (; n > 0; n--)
+			print_link_item(LINK[ref], LINK[text])
+
+	return str
+}
+
+function print_text_block(pref1, pref2, s,
+	pref)
+{
+	print("")
+	for (pref = pref1; length(s) > 0; pref = pref2)
+		s = print_text_line(pref, s, 80)
+}
+
+HEADER && /^$/ {
+	HEADER = 0
+	next
+}
+
+HEADER {
+	LINK[$1] = $2
+	TEXT[$1] = $0
+	sub("^[^ ]+ [^ ]* ", "", TEXT[$1])
 	next
 }
 
 {
+	BLOCK_PREV = BLOCK
+	BLOCK = sub("^\t", "", $0)
+
 	gsub(/\t/, "        ")
 	sub(/^[[t]/, "t&")
-	print
+}
+
+BLOCK {
+	if (!BLOCK_PREV)
+		print("")
+	gsub(/\t/, "        ")
+	print("  : ", $0)
+	next
+}
+
+sub("^\\* ", "", $0) {
+	print_text_block("  • ", "    ", $0)
+	next
+}
+
+sub("^[0-9]+. ", "", $0) {
+	print_text_block(sprintf("%2s. ", $1), "    ", $0)
+	next
+}
+
+match($0, "^#+ ") {
+	print("\n")
+	$0 = substr($0, RSTART + RLENGTH)
+	if (RLENGTH == 1 + 1) {
+		print("   " $0)
+		gsub(".", "━", $0)
+		print("  ━" $0 "━")
+	} else if (RLENGTH == 2 + 1) {
+		print($0)
+		gsub(".", "─", $0)
+		print($0)
+	} else if (RLENGTH == 3 + 1) {
+		print("═══ " $0 " ═══")
+	} else if (RLENGTH == 4 + 1) {
+		print("─── " $0 " ───")
+	} else if (RLENGTH == 5 + 1) {
+		print("┈┈┈ " $0 " ┈┈┈")
+	} else {
+		printf($0)
+	}
+	next
+}
+
+sub("^> ", "", $0) {
+	print_text_block("  ┊ ", "  ┊ ", $0)
+	next
+}
+
+{
+	print_text_block(" ", " ", $0)
+	next
 }
 
 END {
-	print("")
+	print("\n")
 }

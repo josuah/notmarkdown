@@ -8,61 +8,7 @@
 # element) into an array of single-line syntax (HTML's inline elements).
 
 BEGIN {
-	NEW = 1
-	REG["ulist"] = "^\\* "
-	REG["olist"] = "^[0-9]+. "
-	REG["title"] = "^#+ "
-	REG["quote"] = "^> "
-	REG["code"]  = "^\t"
-}
-
-!NEW && /^=+$/ {
-	NEW = 1
-	LINE[N] = "# " LINE[N]
-	next
-}
-
-!NEW && /^-+$/ {
-	NEW = 1
-	LINE[N] = "## " LINE[N]
-	next
-}
-
-sub(REG["code"], "", $1) {
-	NEW = 1
-	LINE[++N] = "\t"$0
-	next
-}
-
-match($0, /^\[.*\]:/) {
-	NEW = 1
-	REF[tolower(substr($0, RSTART + 1, RLENGTH - 3))] = $2
-	next
-}
-
-$0 == "" {
-	NEW = 1
-	next
-}
-
-# catchall: line with a leading pattern matching of REG[] starts a new block
-
-{
-	sub("^ *", "")
-	sub(" *$", "")
-	for (R in REG)
-		NEW = (NEW || $0 ~ REG[R])
-}
-
-NEW == 1 {
-	NEW = 0
-	LINE[++N] = $0
-	next
-}
-
-NEW == 0 {
-	LINE[N] = LINE[N]" "$0
-	next
+	HEADER = 1
 }
 
 # Now that we parsed all the block-specific structure we are done with the 
@@ -83,66 +29,39 @@ function html_escape(s)
 # If the previous TAG is not the same as thte current t tag, close the previous 
 # and open the next.
 
-function print_hook(s, t)
+function print_hook(s, tag)
 {
-	if (TAG != t) {
+	if (TAG != tag) {
 		if (TAG) print("</"TAG">")
-		if (t)   print("<"t">")
+		if (tag) print("<"tag">")
 	}
-	TAG = t
+	TAG = tag
 	return html_escape(s)
 }
 
-# [ref][desc]
-
-function convert_links_simple(s,
+function convert_links(s,
 	tail, name, ref)
 {
 	tail = s
 	s = ""
-	while (match(tail, /\[[^]]*\]\[[^]]*\]/)) {
+	while (match(tail, /\[[^]]*\]/)) {
 		s = s substr(tail, 1, RSTART - 1)
-		name = substr(tail, RSTART + 1, RLENGTH - 2)
-		ref = tolower(name)
-		sub(/.*\]\[/, "", ref)
-		sub(/\]\[.*/, "", name)
-		s = s sprintf("<a href=\"%s\">%s</a>", REF[ref], name)
+		ref = tolower(substr(tail, RSTART + 1, RLENGTH - 2))
+		s = s sprintf("<a href=\"%s\">%s</a>", LINK[ref], TEXT[ref])
 		tail = substr(tail, RSTART + RLENGTH)
 	}
 	return s tail
 }
-
-# [[refdesc]]
-
-function convert_links_double(s,
-	tail, name, ref)
-{
-	tail = s
-	s = ""
-	while (match(tail, /\[\[[^]]*\]\]/)) {
-		s = s substr(tail, 1, RSTART - 1)
-		name = substr(tail, RSTART + 2, RLENGTH - 4)
-		ref = tolower(name)
-		s = s sprintf("<a href=\"%s\">%s</a>", REF[ref], name)
-		tail = substr(tail, RSTART + RLENGTH)
-	}
-	return s tail
-}
-
-# ![alttext][ref]
 
 function convert_images(s,
 	tail, name, ref)
 {
 	tail = s
 	s = ""
-	while (match(tail, /!\[[^]]*\]\[[^]]*\]/)) {
+	while (match(tail, /!\[[^]]*\]/)) {
 		s = s substr(tail, 1, RSTART - 1)
-		name = substr(tail, RSTART + 2, RLENGTH - 3)
-		ref = tolower(name)
-		sub(/.*\]\[/, "", ref)
-		sub(/\]\[.*/, "", name)
-		s = s sprintf("<img src=\"%s\" alt=\"%s\"/>", REF[ref], name)
+		ref = tolower(substr(tail, RSTART + 2, RLENGTH - 3))
+		s = s sprintf("<img src=\"%s\" alt=\"%s\"/>", LINK[ref], TEXT[ref])
 		tail = substr(tail, RSTART + RLENGTH)
 	}
 	return s tail
@@ -170,53 +89,61 @@ function convert_text(s)
 	s = convert_syntax(s, "[*][*][^ ][^*]*[^ ][*][*]", 2, "strong")
 	s = convert_syntax(s, "[*][^ ][^*]*[^ ][*]", 1, "em")
 	s = convert_images(s)
-	s = convert_links_simple(s)
-	s = convert_links_double(s)
+	s = convert_links(s)
 	return s
 }
 
 # Match the beginning of the line using the regexes REG[] defined in BEGIN
 # to determine the printer to use.
 
-function print_line(line, i,
-	s)
+HEADER && /^$/ {
+	HEADER = 0
+	next
+}
+
+HEADER {
+	LINK[$1] = $2
+	TEXT[$1] = $0
+	sub("^[^ ]+ [^ ]* ", "", TEXT[$1])
+	next
+}
+
+sub("^\t", "", $0) {
+	$0 = print_hook($0, "pre")
+	print($0)
+	next
+}
+
+sub("^\\* ", "", $0) {
+	$0 = print_hook($0, "ul")
+	printf("<li>%s</li>\n", convert_text($0))
+	next
+}
+
+sub("^[0-9]+. ", "", $0) {
+	$0 = print_hook($0, "ol")
+	printf("<li>%s</li>\n", convert_text($0))
+	next
+}
+
+match($0, "^#+ ") {
+	$0 = print_hook(substr($0, RLENGTH + 1))
+	lv = RLENGTH - 1
+	printf("\n\n<h%d>%s</h%d>\n\n", lv, convert_text($0), lv)
+	next
+}
+
+sub("^> ", "", $0) {
+	$0 = print_hook($0, "blockquote")
+	printf("%s\n", convert_text($0))
+	next
+}
+
 {
-	if (sub(REG["code"], "", LINE[i])) {
-		s = print_hook(LINE[i], "pre")
-		print(s)
-
-	} else if (sub(REG["ulist"], "", LINE[i])) {
-		s = print_hook(LINE[i], "ul")
-		printf("<li>%s</li>\n", convert_text(s))
-
-	} else if (sub(REG["olist"], "", LINE[i])) {
-		s = print_hook(LINE[i], "ol")
-		printf("<li>%s</li>\n", convert_text(s))
-
-	} else if (match(LINE[i], REG["title"])) {
-		lv = RLENGTH - 1
-		s = print_hook(substr(LINE[i], RLENGTH + 1))
-		printf("\n\n<h%d>%s</h%d>\n\n", lv, convert_text(s), lv)
-
-	} else if (sub(REG["quote"], "", LINE[i])) {
-		s = print_hook(LINE[i], "blockquote")
-		printf("%s\n", convert_text(s))
-
-	} else {
-		s = print_hook(LINE[i], "")
-		printf("<p>%s</p>\n", convert_text(s))
-	}
+	$0 = print_hook($0, "")
+	printf("<p>%s</p>\n", convert_text($0))
 }
 
 END {
-	for (I = 1; I <= N; I++)
-		print_line(line, I)
 	print_hook("", "")
 }
-
-# NOTE: awk(1)'s variables are global scope by default, unless they are in the 
-# function parameters.  That is the reason for the extra parameter line.
-
-# NOTE: to extend this markup, such as supporting this "NOTE:" tag, a regex 
-# matching the beginning of the line in the REG[] array at BEGIN, and a handler 
-# in print_line().

@@ -115,12 +115,9 @@ Only the second is present in Markdown.
 
 It is a subset of Markdown, which means that there is fewer conversion done:
 
- * Inline links are ignored (required for Gopher, line-based links), you will
-   have to convert them to one of the two syntax above.
  * The _ character is not special in any way,
- * Unnumbered lists are only using the asterisks (*), which is the only
-   special character inside the paragraphs.
- * There is no escaping of any character.
+ * No escaping.
+ * No nesting.
 
 The NotMarkdown format is further described in the notmarkdown(5) manpage.
 

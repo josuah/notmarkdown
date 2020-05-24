@@ -1,0 +1,183 @@
+#!/usr/bin/awk -f
+# convert a notmarkdown document to an intermediate syntax easy to parse
+
+# For each line of input, if still part of the same block, it append it to the
+# current line LINE[N], and if not, it pushes a new line to the array LINE[++N].
+#
+# That is the first pass of parsing: turn a line-based syntax (HTML's blocks
+# element) into an array of single-line syntax (HTML's inline elements).
+
+BEGIN {
+	NEW = 1
+	REG["ulist"] = "^[-+*] "
+	REG["olist"] = "^[0-9]+\\. "
+	REG["title"] = "^#+ "
+	REG["quote"] = "^> "
+	REG["code"]  = "^\t"
+}
+
+!NEW && /^=+$/ {
+	NEW = 1
+	LINE[N] = "# " LINE[N]
+	next
+}
+
+!NEW && /^-+$/ {
+	NEW = 1
+	LINE[N] = "## " LINE[N]
+	next
+}
+
+sub(REG["code"], "", $1) {
+	NEW = 1
+	LINE[++N] = "\t"$0
+	next
+}
+
+match($0, /^\[.*\]:/) {
+	NEW = 1
+	LINK[tolower(substr($0, RSTART + 1, RLENGTH - 3))] = $2
+	next
+}
+
+$0 == "" {
+	NEW = 1
+	next
+}
+
+# catchall: line with a leading pattern matching of REG[] starts a new block
+
+{
+	sub("^ *", "")
+	sub(" *$", "")
+	for (R in REG)
+		NEW = (NEW || $0 ~ REG[R])
+}
+
+NEW == 1 {
+	NEW = 0
+	LINE[++N] = $0
+	next
+}
+
+NEW == 0 {
+	LINE[N] = LINE[N]" "$0
+	next
+}
+
+function new_ref(\
+	i)
+{
+	for (i = 0; (i in TEXT) || (i in LINK); i++)
+		continue
+	return i
+}
+
+function print_ref(ref, link, txt)
+{
+	gsub(" ", "%20", link)
+	printf("%s %s %s\n", ref, link, txt)
+}
+
+# [[txtref]]
+
+function convert_links_double(s,
+	tail, link, txt, ref)
+{
+	tail = s
+	s = ""
+	while (match(tail, /\[\[[^]]*\]\]/)) {
+		s = s substr(tail, 1, RSTART - 1)
+		txt = substr(tail, RSTART + 2, RLENGTH - 4)
+		ref = tolower(txt)
+		print_ref(ref, LINK[ref], txt)
+		s = s sprintf("[%s]", ref)
+		tail = substr(tail, RSTART + RLENGTH)
+	}
+	return s tail
+}
+
+# [txt][ref]
+
+function convert_links_simple(s,
+	tail, txt, ref)
+{
+	tail = s
+	s = ""
+	while (match(tail, /\[[^]]*\]\[[^]]*\]/)) {
+		s = s substr(tail, 1, RSTART - 1)
+		ref = substr(tail, RSTART + 1, RLENGTH - 2)
+		txt = substr(ref, 1, index(ref, "][") - 1)
+		ref = substr(ref, index(ref, "][") + 2)
+		ref = tolower(ref)
+		print_ref(ref, LINK[ref], txt)
+		s = s sprintf("[%s]", ref)
+		tail = substr(tail, RSTART + RLENGTH)
+	}
+	return s tail
+}
+
+# [txt](link)
+
+function convert_links_inline(s,
+	tail, txt, ref)
+{
+	tail = s
+	s = ""
+	while (match(tail, /\[[^]]*\]\([^]]*\)/)) {
+		s = s substr(tail, 1, RSTART - 1)
+		txt = substr(tail, RSTART + 1, RLENGTH - 2)
+		link = substr(ref, 1, index(ref, "]("))
+		txt = substr(txt, index(ref, "]("))
+		ref = new_ref()
+		print_ref(ref, txt, link)
+		s = s sprintf("[%s]", ref)
+		tail = substr(tail, RSTART + RLENGTH)
+	}
+	return s tail
+}
+
+# <link>
+
+function convert_links_literal(s,
+	link, ref)
+{
+	tail = s
+	s = ""
+	while (match(tail, /<[^>]*>/)) {
+		s = s substr(tail, 1, RSTART - 1)
+		link = substr(tail, RSTART + 1, RLENGTH - 2)
+		ref = new_ref()
+		print_ref(ref, link, link)
+		s = s sprintf("[%s]", ref)
+		tail = substr(tail, RSTART + RLENGTH)
+	}
+	return s tail
+}
+
+# Match the beginning of the line using the regexes REG[] defined in BEGIN
+# to determine the printer to use.
+
+END {
+	for (i = 1; i <= N; i++) {
+		if (LINE[i] ~ REG["code"])
+			continue
+		LINE[i] = convert_links_simple(LINE[i])
+		LINE[i] = convert_links_double(LINE[i])
+		LINE[i] = convert_links_inline(LINE[i])
+		LINE[i] = convert_links_literal(LINE[i])
+	}
+
+	print ""
+
+	for (i = 1; i <= N; i++) {
+		print(LINE[i])
+	}
+}
+
+# NOTE: awk(1)'s variables are global scope by default, unless they are in the 
+# function parameters.  That is the reason for the extra parameter line.
+
+# NOTE: to extend this markup, such as supporting this "NOTE:" tag, a regex 
+# matching the beginning of the line in the REG[] array at BEGIN, and a handler 
+# in print_line().
