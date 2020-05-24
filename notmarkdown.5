@@ -56,7 +56,7 @@ These patterns are matched at line start, opening a new block:
 .
 .Bl -tag -width 14n
 .
-.It Ic *
+.It Ic * No / Ic - No / Ic +
 Unordered lists.
 Any space before, at least one after.
 .
@@ -76,6 +76,11 @@ No space before, at least one after.
 Literal block line.
 No space before, everything else is printed without conversion.
 .
+.It Ic >
+Quoted text.
+Unlike markdown, it cannot contain list or any other block syntax, but support
+all inline syntax.
+.
 .El
 .
 .
@@ -94,6 +99,12 @@ Bold text.
 .It Ic ***text***.
 Bold italic text.
 .
+.It Ic [desc](link)
+Inline link
+.Dq link
+with description
+.Dq desc .
+.
 .It Ic [desc][ref]
 Link with description
 .Dq desc
@@ -111,7 +122,14 @@ Image with alt-text
 .Dq alt
 and refernce
 .Dq ref
-ror source.
+for source.
+.
+.It Ic ![alt](link)
+Inline image with alt-text
+.Dq alt
+and
+.Dq link
+for source.
 .
 .
 .Sh EXAMPLES
