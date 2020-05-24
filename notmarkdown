@@ -9,6 +9,7 @@
 
 BEGIN {
 	NEW = 1
+
 	REG["ulist"] = "^[-+*] "
 	REG["olist"] = "^[0-9]+\\. "
 	REG["title"] = "^#+ "
@@ -68,7 +69,7 @@ NEW == 0 {
 function new_ref(\
 	i)
 {
-	for (i = 0; (i in TEXT) || (i in LINK); i++)
+	for (i = 0; ("ref#"i in TEXT) || ("ref#"i in LINK); i++)
 		continue
 	return i
 }
@@ -86,7 +87,7 @@ function convert_links_double(s,
 {
 	tail = s
 	s = ""
-	while (match(tail, /\[\[[^]]*\]\]/)) {
+	while (match(tail, /\[\[[^] ]*\]\]/)) {
 		s = s substr(tail, 1, RSTART - 1)
 		txt = substr(tail, RSTART + 2, RLENGTH - 4)
 		ref = tolower(txt)
@@ -104,7 +105,7 @@ function convert_links_simple(s,
 {
 	tail = s
 	s = ""
-	while (match(tail, /\[[^]]*\]\[[^]]*\]/)) {
+	while (match(tail, /\[[^]]*\]\[[^] ]*\]/)) {
 		s = s substr(tail, 1, RSTART - 1)
 		ref = substr(tail, RSTART + 1, RLENGTH - 2)
 		txt = substr(ref, 1, index(ref, "][") - 1)
@@ -124,7 +125,7 @@ function convert_links_inline(s,
 {
 	tail = s
 	s = ""
-	while (match(tail, /\[[^]]*\]\([^]]*\)/)) {
+	while (match(tail, /\[[^]]*\]\([^)]*\)/)) {
 		s = s substr(tail, 1, RSTART - 1)
 		txt = substr(tail, RSTART + 1, RLENGTH - 2)
 		link = substr(ref, 1, index(ref, "]("))
@@ -162,8 +163,8 @@ END {
 	for (i = 1; i <= N; i++) {
 		if (LINE[i] ~ REG["code"])
 			continue
-		LINE[i] = convert_links_simple(LINE[i])
 		LINE[i] = convert_links_double(LINE[i])
+		LINE[i] = convert_links_simple(LINE[i])
 		LINE[i] = convert_links_inline(LINE[i])
 		LINE[i] = convert_links_literal(LINE[i])
 	}
@@ -175,9 +176,6 @@ END {
 	}
 }
 
-# NOTE: awk(1)'s variables are global scope by default, unless they are in the 
-# function parameters.  That is the reason for the extra parameter line.
-
-# NOTE: to extend this markup, such as supporting this "NOTE:" tag, a regex 
-# matching the beginning of the line in the REG[] array at BEGIN, and a handler 
-# in print_line().
+# NOTE: to extend this markup, such as supporting this "NOTE:" tag, a regex
+# matching the beginning of the line in the REG[] array at BEGIN, and a handler
+# rule in each notmarkdown-* backend.

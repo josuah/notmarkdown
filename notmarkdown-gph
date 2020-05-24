@@ -169,7 +169,6 @@ HEADER {
 	BLOCK = sub("^\t", "", $0)
 
 	gsub(/\t/, "        ")
-	sub(/^[[t]/, "t&")
 }
 
 BLOCK {

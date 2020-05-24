@@ -35,14 +35,15 @@ script calling one awk script on every page, generating a site in one of these
 formats:
 
  * html - traditionnal format of the Web, through the notmarkdown-html backend.
- * gph - [[geomyidae]](1)'s format for Gopher, through the notmarkdow-gph backend.
+ * gph - [geomyidae(1)][geo]'s format for Gopher, through the notmarkdow-gph
+   backend.
 
 To add a new converter backend, add in $PATH a script called notmarkdown-$ext
 that reads NotMarkdown from stdin and sends the targetted format to stdout. For
 instance, a notmarkdown-txt backend that print the document unchanged or a
 notmarkdown-pdf aiming paper publication.
 
-[geomyidae]: gopher://bitreich.org/1/scm/geomyidae/file/README.gph
+[geo]: gopher://bitreich.org/1/scm/geomyidae/file/README.gph
 
 
 How to keep links compatible between HTTP and Gopher?
@@ -103,17 +104,7 @@ such as blogs, newspapers, association/enterprise presentation...
 
 How does NotMarkdown differ with Markdown?
 ------------------------------------------
-All NotMarkdown documents are normal Markdown documents, except for one of the
-two link syntax:
-
-	Add a [[link]] and [another][another].
-	
-	[link]: https://example.com/
-	[another]: https://www.example.com/
-
-Only the second is present in Markdown.
-
-It is a subset of Markdown, which means that there is fewer conversion done:
+It is a subset of Markdown without the following features:
 
  * The _ character is not special in any way,
  * No escaping.
