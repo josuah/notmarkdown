@@ -1,0 +1,8 @@
+#!/bin/sh -e
+export ext="${1:?}" type="${2:?}" dest="${3:?}"; shift 3
+
+find "$@" -name '*.[0-9]' -exec sh -c '
+	mkdir -p "$dest/${0##*/}"
+	mandoc -T$type -Ofragment "$0" \
+	 | ul -t dumb | cat head.$ext - >"$dest/${0##*/}/index.$ext"
+' {} \;

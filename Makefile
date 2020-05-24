@@ -3,10 +3,10 @@ PREFIX = /usr/local
 MANPREFIX = ${PREFIX}/share/man
 
 rel = notwiki-${VERSION}
-bin = notmarkdown notmarkdown-gph notmarkdown-html notwiki-doc
+bin = notmarkdown notmarkdown-gph notmarkdown-html notwiki-doc notwiki-mandoc
 man = ${man1} ${man5}
-man1 = notwiki-doc.1
-man5 = notmarkdown.5
+man1 = doc/notwiki-doc.1
+man5 = doc/notmarkdown.5
 
 all:
 

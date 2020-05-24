@@ -11,8 +11,8 @@ It supports publication of the same .md files for both http+html and gopher+gph.
 
 How to generate a website?
 --------------------------
-The notwiki-doc(1) tool will search for *.md files in all $srcdir passed as
-arguments, and each file $path/file.$ext found, gets copied to the matching
+The [notwiki-doc(1)][doc] tool will search for *.md files in all $srcdir passed
+as arguments, and each file $path/file.$ext found, gets copied to the matching
 $dstdir/$path/file.$ext directory.
 
 	$ cd /home/me/website-document-root/
@@ -26,6 +26,8 @@ wiki user to suggest modifications.
 
 The head.$ext (head.html, head.gph) file is added at the top of the converted
 document.
+
+[doc]: /man/notwiki-doc.1/
 
 
 How does NotWiki work?
@@ -80,7 +82,13 @@ This documentation is maintained in the ./doc/ directory of the git repo, and
 on every commit, a [[git-hook]] regenerates the documentation using NotWiki.
 
 This permits to have the documentation bound to the code akin to Github's wikis
-but self-hosted.
+but self-hosted:
+
+	cd "$tmp/doc"
+	notwiki-doc html "/srv/www/htdocs/code/notwiki" .
+	notwiki-doc gph  "/srv/gopher/notwiki" .
+	notwiki-mandoc gph utf8 "/srv/gopher/man" .
+	notwiki-mandoc html html "/srv/www/htdocs/code/man" .
 
 [git-hook]: //josuah.net/wiki/git-hooks/
 
@@ -110,5 +118,7 @@ It is a subset of Markdown without the following features:
  * No escaping.
  * No nesting.
 
-The NotMarkdown format is further described in the notmarkdown(5) manpage.
+The NotMarkdown format is further described in the [notmarkdown(5)][nmd]
+manpage.
 
+[nmd]: /man/notmarkdown.5/
