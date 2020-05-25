@@ -44,7 +44,7 @@ function convert_links(s,
 {
 	tail = s
 	s = ""
-	while (match(tail, /\[[^]]*\]/)) {
+	while (match(tail, /\[[^] ]+\]/)) {
 		s = s substr(tail, 1, RSTART - 1)
 		ref = tolower(substr(tail, RSTART + 1, RLENGTH - 2))
 		s = s sprintf("<a href=\"%s\">%s</a>", LINK[ref], TEXT[ref])
@@ -58,7 +58,7 @@ function convert_images(s,
 {
 	tail = s
 	s = ""
-	while (match(tail, /!\[[^]]*\]/)) {
+	while (match(tail, /!\[[^] ]+\]/)) {
 		s = s substr(tail, 1, RSTART - 1)
 		ref = tolower(substr(tail, RSTART + 2, RLENGTH - 3))
 		s = s sprintf("<img src=\"%s\" alt=\"%s\"/>", LINK[ref], TEXT[ref])

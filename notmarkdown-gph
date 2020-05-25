@@ -117,7 +117,7 @@ function print_text_line(pref, str, len,
 	len -= length(pref)
 
 	for (n = 0;; n++) {
-		if (!match(fold_line(str, len - length(out)), /\[[^]]+\]/))
+		if (!match(fold_line(str, len - length(out)), /\[[^] ]+\]/))
 			break
 		REF[ref = substr(str, RSTART + 1, RLENGTH - 2)]++
 		out = out substr(str, 1, RSTART - 1) "[" TEXT[ref] "]"

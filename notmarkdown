@@ -14,7 +14,21 @@ BEGIN {
 	REG["olist"] = "^[0-9]+\\. "
 	REG["title"] = "^#+ "
 	REG["quote"] = "^> "
-	REG["code"]  = "^\t"
+}
+
+sub(/^\t/, "", $1) {
+	NEW = 1
+	LINE[++N] = "\t" $0
+	next
+}
+
+/^```/ {
+	while (getline) {
+		if ($0 ~ /^```/)
+			break
+		LINE[++N] = "\t" $0
+	}
+	next
 }
 
 !NEW && /^=+$/ {
@@ -29,13 +43,7 @@ BEGIN {
 	next
 }
 
-sub(REG["code"], "", $1) {
-	NEW = 1
-	LINE[++N] = "\t"$0
-	next
-}
-
-match($0, /^\[.*\]:/) {
+match($0, /^\[[^] ]+\]:/) {
 	NEW = 1
 	LINK[tolower(substr($0, RSTART + 1, RLENGTH - 3))] = $2
 	next
@@ -62,7 +70,7 @@ NEW == 1 {
 }
 
 NEW == 0 {
-	LINE[N] = LINE[N]" "$0
+	LINE[N] = LINE[N] " " $0
 	next
 }
 
@@ -87,7 +95,7 @@ function convert_links_double(s,
 {
 	tail = s
 	s = ""
-	while (match(tail, /\[\[[^] ]*\]\]/)) {
+	while (match(tail, /\[\[[^] ]+\]\]/)) {
 		s = s substr(tail, 1, RSTART - 1)
 		txt = substr(tail, RSTART + 2, RLENGTH - 4)
 		ref = tolower(txt)
@@ -105,7 +113,7 @@ function convert_links_simple(s,
 {
 	tail = s
 	s = ""
-	while (match(tail, /\[[^]]*\]\[[^] ]*\]/)) {
+	while (match(tail, /\[[^]]+\]\[[^] ]+\]/)) {
 		s = s substr(tail, 1, RSTART - 1)
 		ref = substr(tail, RSTART + 1, RLENGTH - 2)
 		txt = substr(ref, 1, index(ref, "][") - 1)
@@ -125,7 +133,7 @@ function convert_links_inline(s,
 {
 	tail = s
 	s = ""
-	while (match(tail, /\[[^]]*\]\([^)]*\)/)) {
+	while (match(tail, /\[[^]]+\]\([^) ]+\)/)) {
 		s = s substr(tail, 1, RSTART - 1)
 		txt = substr(tail, RSTART + 1, RLENGTH - 2)
 		link = substr(ref, 1, index(ref, "]("))
@@ -145,7 +153,7 @@ function convert_links_literal(s,
 {
 	tail = s
 	s = ""
-	while (match(tail, /<[^>]*>/)) {
+	while (match(tail, /<[^> ]+>/)) {
 		s = s substr(tail, 1, RSTART - 1)
 		link = substr(tail, RSTART + 1, RLENGTH - 2)
 		ref = new_ref()
@@ -161,7 +169,7 @@ function convert_links_literal(s,
 
 END {
 	for (i = 1; i <= N; i++) {
-		if (LINE[i] ~ REG["code"])
+		if (LINE[i] ~ /^\t/)
 			continue
 		LINE[i] = convert_links_double(LINE[i])
 		LINE[i] = convert_links_simple(LINE[i])

@@ -72,9 +72,13 @@ Any space before, at least one after.
 Link reference. 
 No space before, at least one after.
 .
-.It Ic \et
-Literal block line.
-No space before, everything else is printed without conversion.
+.It Ic \et No / Ic ```
+Consecutive lines starting with a leading tab \[em] as well as lines after
+.Ic ```
+alone on a line until the next
+.Ic ```
+\[em] are literal blocks.
+No conversion is done inside the block, and formatting is preserved.
 .
 .It Ic >
 Quoted text.
