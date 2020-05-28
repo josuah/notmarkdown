@@ -10,12 +10,14 @@ It supports publication of the same .md files for both http+html and gopher+gph.
 
 How to generate a website?
 --------------------------
-The [notwiki-doc(1)](/man/notwiki-doc.1/) tool will search for *.md files in
+The [notwiki-doc(1)][doc] tool will search for *.md files in
 all $srcdir passed as arguments, and each file $path/file.$ext found, gets
 copied to the matching $dstdir/$path/file.$ext directory.
 
 	$ cd /home/me/website-document-root/
 	$ notwiki-doc html /srv/www/htdocs/wiki ./wiki
+
+[doc]: /man/notwiki-doc.1/
 
 Here, /home/me/website-document-root/wiki/introdcution/index.md would be
 copied to /srv/www/htdocs/wiki/introduction/index.html.

@@ -2,7 +2,7 @@
 # convert a notmarkdown document to an intermediate syntax easy to parse
 
 # For each line of input, if still part of the same block, it append it to the
-# current line LINE[N], and if not, it pushes a new line to the array LINE[++N].
+# current line LINE[N], and if not, it pushes a new_ref line to the array LINE[++N].
 #
 # That is the first pass of parsing: turn a line-based syntax (HTML's blocks
 # element) into an array of single-line syntax (HTML's inline elements).
@@ -54,7 +54,7 @@ $0 == "" {
 	next
 }
 
-# catchall: line with a leading pattern matching of REG[] starts a new block
+# catchall: line with a leading pattern matching of REG[] starts a new_ref block
 
 {
 	sub("^ *", "")
@@ -77,91 +77,90 @@ NEW == 0 {
 function new_ref(\
 	i)
 {
-	for (i = 1; ("ref#" i in TEXT) || ("ref#" i in LINK); i++)
+	for (i = 1; ("ref#"i in TEXT) || ("ref#"i in LINK); i++)
 		continue
-	return i
+	TEXT["ref#"i]++
+	return "ref#"i
 }
 
-function print_ref(ref, link, txt)
+# helper function to avoid duplicated code: append the beginning of t["tail"]
+# to t["head"] along with "[" ref "]", and strip what was added from t["tail"]
+# and then print the reference with the link and text.
+
+function parse_link(t, beg, len, ref, link, text)
 {
 	gsub(" ", "%20", link)
-	printf("%s %s %s\n", ref, link, txt)
+	printf("%s %s %s\n", ref, link, text)
+	t["head"] = t["head"] substr(t["tail"], 1, RSTART - 1) "[" ref "]"
+	t["tail"] = substr(t["tail"], RSTART + RLENGTH)
+}
+
+# <txtref>
+
+function convert_links_literal(s,
+	t)
+{
+	t["tail"] = s
+	t["head"] = ""
+	while (match(t["tail"], /<[^> ]+>/)) {
+		parse_link(t, RSTART, RLENGTH,
+		  new_ref(),
+		  substr(t["tail"], RSTART + 1, RLENGTH - 2),
+		  substr(t["tail"], RSTART + 1, RLENGTH - 2))
+	}
+	return t["head"] t["tail"]
 }
 
 # [[txtref]]
 
 function convert_links_double(s,
-	tail, link, txt, ref)
+	t, txtref)
 {
-	tail = s
-	s = ""
-	while (match(tail, /\[\[[^] ]+\]\]/)) {
-		s = s substr(tail, 1, RSTART - 1)
-		txt = substr(tail, RSTART + 2, RLENGTH - 4)
-		ref = tolower(txt)
-		print_ref(ref, LINK[ref], txt)
-		s = s sprintf("[%s]", ref)
-		tail = substr(tail, RSTART + RLENGTH)
+	t["tail"] = s
+	t["head"] = ""
+	while (match(t["tail"], /\[\[[^] ]+\]\]/)) {
+		txtref = substr(t["tail"], RSTART + 2, RLENGTH - 4)
+		parse_link(t, RSTART, RLENGTH,
+		  tolower(txtref),
+		  LINK[tolower(txtref)],
+		  txtref)
 	}
-	return s tail
+	return t["head"] t["tail"]
 }
 
-# [txt][ref]
+# [text][ref]
 
 function convert_links_simple(s,
-	tail, txt, ref)
+	t, i, ref)
 {
-	tail = s
-	s = ""
-	while (match(tail, /\[[^]]+\]\[[^] ]+\]/)) {
-		s = s substr(tail, 1, RSTART - 1)
-		ref = substr(tail, RSTART + 1, RLENGTH - 2)
-		txt = substr(ref, 1, index(ref, "][") - 1)
-		ref = substr(ref, index(ref, "][") + 2)
-		ref = tolower(ref)
-		print_ref(ref, LINK[ref], txt)
-		s = s sprintf("[%s]", ref)
-		tail = substr(tail, RSTART + RLENGTH)
+	t["tail"] = s
+	t["head"] = ""
+	while (match(t["tail"], /\[[^]]+\]\[[^] ]+\]/)) {
+		i = index(substr(t["tail"], RSTART, RLENGTH), "][")
+		ref = substr(t["tail"], RSTART + i + 1, RLENGTH - i - 2)
+		parse_link(t, RSTART, RLENGTH,
+		  ref,
+		  LINK[ref],
+		  substr(t["tail"], RSTART + 1, i - 2))
 	}
-	return s tail
+	return t["head"] t["tail"]
 }
 
-# [txt](link)
+# [text](link)
 
 function convert_links_inline(s,
-	tail, txt, ref, i)
+	t, i)
 {
-	tail = s
-	s = ""
-	while (match(tail, /\[[^]]+\]\([^) ]+\)/)) {
-		s = s substr(tail, 1, RSTART - 1)
-		i = index(substr(tail, RSTART, RLENGTH), "](")
-		link = substr(tail, RSTART + 1, i - 2)
-		txt = substr(tail, RSTART + i + 1, RLENGTH - i - 2)
-		ref = new_ref()
-		print_ref(ref, txt, link)
-		s = s sprintf("[%s]", ref)
-		tail = substr(tail, RSTART + RLENGTH)
+	t["tail"] = s
+	t["head"] = ""
+	while (match(t["tail"], /\[[^]]+\]\([^) ]+\)/)) {
+		i = index(t["tail"], "](")
+		parse_link(t, RSTART, RLENGTH,
+		  new_ref(),
+		  substr(t["tail"], i + 2, RLENGTH + RSTART - i - 3),
+		  substr(t["tail"], RSTART + 1, i - RSTART - 1))
 	}
-	return s tail
-}
-
-# <link>
-
-function convert_links_literal(s,
-	link, ref)
-{
-	tail = s
-	s = ""
-	while (match(tail, /<[^> ]+>/)) {
-		s = s substr(tail, 1, RSTART - 1)
-		link = substr(tail, RSTART + 1, RLENGTH - 2)
-		ref = new_ref()
-		print_ref(ref, link, link)
-		s = s sprintf("[%s]", ref)
-		tail = substr(tail, RSTART + RLENGTH)
-	}
-	return s tail
+	return t["head"] t["tail"]
 }
 
 # Match the beginning of the line using the regexes REG[] defined in BEGIN
@@ -179,9 +178,8 @@ END {
 
 	print ""
 
-	for (i = 1; i <= N; i++) {
+	for (i = 1; i <= N; i++)
 		print(LINE[i])
-	}
 }
 
 # NOTE: to extend this markup, such as supporting this "NOTE:" tag, a regex
