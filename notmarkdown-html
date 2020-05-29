@@ -3,27 +3,11 @@
 
 # For each line of input, if still part of the same block, it append it to the
 # current line LINE[N], and if not, it pushes a new line to the array LINE[++N].
-#
 # That is the first pass of parsing: turn a line-based syntax (HTML's blocks
 # element) into an array of single-line syntax (HTML's inline elements).
 
 BEGIN {
 	HEADER = 1
-}
-
-# Now that we parsed all the block-specific structure we are done with the 
-# input: every markdown block is in its own entry in the LINE[] array.
-#
-# Now remains to print the blocks one by one, converting the inline elements
-# as we go.
-
-function html_escape(s)
-{
-	gsub("&",  "\\&amp;",  s)
-	gsub("<",  "\\&lt;",   s)
-	gsub(">",  "\\&gt;",   s)
-	gsub("\"", "\\&quot;", s)
-	return s
 }
 
 # If the previous TAG is not the same as thte current t tag, close the previous 
@@ -36,50 +20,77 @@ function print_hook(s, tag)
 		if (tag) print("<"tag">")
 	}
 	TAG = tag
-	return html_escape(s)
 }
 
 function convert_links(s,
-	tail, name, ref)
+	head, tail, name, ref)
 {
+	head = ""
 	tail = s
-	s = ""
 	while (match(tail, /\[[^] ]+\]/)) {
-		s = s substr(tail, 1, RSTART - 1)
+		head = head substr(tail, 1, RSTART - 1)
 		ref = tolower(substr(tail, RSTART + 1, RLENGTH - 2))
-		s = s sprintf("<a href=\"%s\">%s</a>", LINK[ref], TEXT[ref])
+		head = head sprintf("<a href=\"%s\">%s</a>", LINK[ref], TEXT[ref])
 		tail = substr(tail, RSTART + RLENGTH)
 	}
-	return s tail
+	return head tail
 }
 
 function convert_images(s,
-	tail, name, ref)
+	head, tail, name, ref)
 {
+	head = ""
 	tail = s
-	s = ""
 	while (match(tail, /!\[[^] ]+\]/)) {
-		s = s substr(tail, 1, RSTART - 1)
+		head = head substr(tail, 1, RSTART - 1)
 		ref = tolower(substr(tail, RSTART + 2, RLENGTH - 3))
-		s = s sprintf("<img src=\"%s\" alt=\"%s\"/>", LINK[ref], TEXT[ref])
+		head = head sprintf("<img src=\"%s\" alt=\"%s\"/>", LINK[ref], TEXT[ref])
 		tail = substr(tail, RSTART + RLENGTH)
 	}
-	return s tail
+	return head tail
 }
 
 function convert_syntax(s, reg, len, tag,
-	tail)
+	head, tail)
 {
+	head = ""
 	tail = s
-	s = ""
 	while (match(tail, reg)) {
-		s = s substr(tail, 1, RSTART - 1)
-		s = s "<"tag">"
-		s = s substr(tail, RSTART + len, RLENGTH - len * 2)
-		s = s "</"tag">"
+		head = head substr(tail, 1, RSTART - 1)
+		head = head "<" tag ">"
+		head = head substr(tail, RSTART + len, RLENGTH - len * 2)
+		head = head "</" tag ">"
 		tail = substr(tail, RSTART + RLENGTH)
 	}
-	return s tail
+	return head tail
+}
+
+function convert_literals(s,
+	head, tail, quoted)
+{
+	head = ""
+	tail = s
+	while (match(tail, /`[^`]*`/)) {
+		quoted = substr(tail, RSTART + 1, RLENGTH - 2)
+		head = head substr(tail, 1, RSTART - 1) "<code>" quoted "</code>"
+		tail = substr(tail, RSTART + RLENGTH)
+	}
+	return head tail
+}
+
+function print_escaped(s)
+{
+	gsub("\\\\u", "_", s)
+	gsub("\\\\q", "`", s)
+	gsub("\\\\S", "[", s)
+	gsub("\\\\s", "]", s)
+	gsub("\\\\R", "(", s)
+	gsub("\\\\r", ")", s)
+	gsub("\\\\A", "\\&lt;", s)
+	gsub("\\\\a", "\\&gt;", s)
+	gsub("\\\\w", "*", s)
+	gsub("\\\\e", "\\", s)
+	print(s)
 }
 
 # **bold**, *italics*, links...
@@ -90,6 +101,7 @@ function convert_text(s)
 	s = convert_syntax(s, "[*][^ ][^*]*[^ ][*]", 1, "em")
 	s = convert_images(s)
 	s = convert_links(s)
+	s = convert_literals(s)
 	return s
 }
 
@@ -108,40 +120,48 @@ HEADER {
 	next
 }
 
+{
+	gsub("&", "\\&amp;", s)
+	gsub("<", "\\&lt;", s)
+	gsub(">", "\\&gt;", s)
+	gsub("\"", "\\&quot;", s)
+}
+
 sub("^\t", "", $0) {
-	$0 = print_hook($0, "pre")
-	print($0)
+	print_hook($0, "pre")
+	print_escaped($0)
 	next
 }
 
 sub("^\\* ", "", $0) {
-	$0 = print_hook($0, "ul")
-	printf("<li>%s</li>\n", convert_text($0))
+	print_hook($0, "ul")
+	print_escaped(sprintf("<li>%s</li>", convert_text($0)))
 	next
 }
 
 sub("^[0-9]+. ", "", $0) {
-	$0 = print_hook($0, "ol")
-	printf("<li>%s</li>\n", convert_text($0))
+	print_hook($0, "ol")
+	print_escaped(sprintf("<li>%s</li>", convert_text($0)))
 	next
 }
 
 match($0, "^#+ ") {
-	$0 = print_hook(substr($0, RLENGTH + 1))
+	print_hook($0 = substr($0, RLENGTH + 1), "")
 	lv = RLENGTH - 1
-	printf("\n\n<h%d>%s</h%d>\n\n", lv, convert_text($0), lv)
+	print("")
+	print_escaped(sprintf("<h%d>%s</h%d>", lv, convert_text($0), lv))
 	next
 }
 
 sub("^> ", "", $0) {
-	$0 = print_hook($0, "blockquote")
-	printf("%s\n", convert_text($0))
+	print_hook($0, "blockquote")
+	print_escaped(convert_text($0))
 	next
 }
 
 {
-	$0 = print_hook($0, "")
-	printf("<p>%s</p>\n", convert_text($0))
+	print_hook($0, "")
+	print_escaped("<p>" convert_text($0) "</p>")
 }
 
 END {

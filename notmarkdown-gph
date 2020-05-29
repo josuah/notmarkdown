@@ -1,5 +1,5 @@
 #!/usr/bin/awk -f
-# convert links from a notmarkdown document to index.gph format
+# convert links from a notmarkdown intermediate format to index.gph format
 
 # This script only convert the "[ref]:" links.  The rest of the text
 # is passed just escaped without other change.
@@ -89,6 +89,21 @@ function parse_link(s, link)
 	}
 }
 
+function print_escaped(s)
+{
+        gsub("\\\\u", "_", s)
+        gsub("\\\\q", "`", s)
+        gsub("\\\\S", "[", s)
+        gsub("\\\\s", "]", s)
+        gsub("\\\\R", "(", s)
+        gsub("\\\\r", ")", s)
+        gsub("\\\\A", "<", s)
+        gsub("\\\\a", ">", s)
+        gsub("\\\\w", "*", s)
+        gsub("\\\\e", "\\", s)
+        print(s)
+}
+
 function print_link_item(link, line,
 	item)
 {
@@ -96,8 +111,9 @@ function print_link_item(link, line,
 	item["line"] = line
 	for (i in item)
 		gsub(/\|/, "\\|", item[i])
-	printf("[%s|%s|%s|%s|%s]\n", item["type"], item["line"], item["path"],
-	  item["host"], item["port"])
+
+	print_escaped(sprintf("[%s|%s|%s|%s|%s]", item["type"], item["line"],
+	  item["path"], item["host"], item["port"]))
 }
 
 function fold_line(s, len)
@@ -112,14 +128,12 @@ function fold_line(s, len)
 # assert that [ref] is smaller than [replacement text]
 
 function print_text_line(pref, str, len,
-	out, fold, ref, i)
+	out, fold, ref, links, i)
 {
 	len -= length(pref)
 
-	for (n = 0;; n++) {
-		if (!match(fold_line(str, len - length(out)), /\[[^] ]+\]/))
-			break
-		REF[ref = substr(str, RSTART + 1, RLENGTH - 2)]++
+	while (match(fold_line(str, len - length(out)), /\[[^] ]+\]/)) {
+		links[ref = substr(str, RSTART + 1, RLENGTH - 2)]++
 		out = out substr(str, 1, RSTART - 1) "[" TEXT[ref] "]"
 		str = substr(str, RSTART + RLENGTH)
 	}
@@ -128,14 +142,13 @@ function print_text_line(pref, str, len,
 	str = substr(str, length(fold) + 1)
 	sub("^ *", "", str)
 
-	if (n == 1)
+	if (length(links) == 1)
 		print_link_item(LINK[ref], pref out)
-	if (n != 1)
-		print(pref out)
-	if (n >= 2)
-		for (; n > 0; n--)
-			print_link_item(LINK[ref], LINK[text])
-
+	if (length(links) != 1)
+		print_escaped(pref out)
+	if (length(links) >= 2)
+		for (i in links)
+			print_link_item(LINK[i], "    -> " TEXT[i])
 	return str
 }
 
@@ -162,7 +175,6 @@ HEADER {
 {
 	BLOCK_PREV = BLOCK
 	BLOCK = sub("^\t", "", $0)
-
 	gsub(/\t/, "        ")
 }
 
@@ -170,7 +182,7 @@ BLOCK {
 	if (!BLOCK_PREV)
 		print("")
 	gsub(/\t/, "        ")
-	print("  : ", $0)
+	print_escaped("  : " $0)
 	next
 }
 
@@ -188,21 +200,21 @@ match($0, "^#+ ") {
 	print("\n")
 	$0 = substr($0, RSTART + RLENGTH)
 	if (RLENGTH == 1 + 1) {
-		print("   " $0)
+		print_escaped("   " $0)
 		gsub(".", "━", $0)
 		print("  ━" $0 "━")
 	} else if (RLENGTH == 2 + 1) {
-		print($0)
+		print_escaped($0)
 		gsub(".", "─", $0)
 		print($0)
 	} else if (RLENGTH == 3 + 1) {
-		print("═══ " $0 " ═══")
+		print_escaped("═══ " $0 " ═══")
 	} else if (RLENGTH == 4 + 1) {
-		print("─── " $0 " ───")
-	} else if (RLENGTH == 5 + 1) {
-		print("┈┈┈ " $0 " ┈┈┈")
+		print_escaped("─── " $0 " ───")
+	} else if (RLENGTH >= 5 + 1) {
+		print_escaped("┈┈┈ " $0 " ┈┈┈")
 	} else {
-		printf($0)
+		print($0)
 	}
 	next
 }

@@ -80,7 +80,7 @@ on every commit, a [git-hook](//code.z0.is/wiki/git-hooks/) regenerates the
 documentation using NotWiki.
 
 This permits to have the documentation bound to the code akin to Github's wikis
-but self-hosted:
+but self-hosted, and with zero-dependency (portable awk implementation):
 
 	cd "$tmp/doc"
 	notwiki-doc html "/srv/www/htdocs/code/notwiki" .
@@ -108,11 +108,5 @@ such as blogs, newspapers, association/enterprise presentation...
 
 How does NotMarkdown differ with Markdown?
 ------------------------------------------
-It is a subset of Markdown without the following features:
-
- * The _ character is not special in any way,
- * No escaping.
- * No nesting.
-
-The NotMarkdown format is further described in the
-[notmarkdown(5)](/man/notmarkdown.5/) manpage.
+It is a fairly complete version of Markdown without nesting support, further
+further described by [notmarkdown(5)](/man/notmarkdown.5/) man page.

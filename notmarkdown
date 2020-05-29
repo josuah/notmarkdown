@@ -10,6 +10,10 @@
 BEGIN {
 	NEW = 1
 
+	ESC["["] = "S"; ESC["]"] = "s";	ESC["*"] = "w"
+	ESC["("] = "R"; ESC[")"] = "r"; ESC["_"] = "u"
+	ESC["<"] = "A"; ESC[">"] = "a"; ESC["`"] = "q"
+
 	REG["ulist"] = "^[-+*] "
 	REG["olist"] = "^[0-9]+\\. "
 	REG["title"] = "^#+ "
@@ -74,6 +78,15 @@ NEW == 0 {
 	next
 }
 
+function convert_escape_sequences(s,
+	i)
+{
+	gsub(/\\\\/, "\\e", s)
+	for (i in ESC)
+		gsub("\\\\["i"]", "\\" ESC[i], s)
+	return s
+}
+
 function new_ref(\
 	i)
 {
@@ -97,7 +110,7 @@ function parse_link(t, beg, len, ref, link, text)
 
 # <txtref>
 
-function convert_links_literal(s,
+function convert_literal_links(s,
 	t)
 {
 	t["tail"] = s
@@ -113,7 +126,7 @@ function convert_links_literal(s,
 
 # [[txtref]]
 
-function convert_links_double(s,
+function convert_double_links(s,
 	t, txtref)
 {
 	t["tail"] = s
@@ -130,7 +143,7 @@ function convert_links_double(s,
 
 # [text][ref]
 
-function convert_links_simple(s,
+function convert_simple_links(s,
 	t, i, ref)
 {
 	t["tail"] = s
@@ -148,7 +161,7 @@ function convert_links_simple(s,
 
 # [text](link)
 
-function convert_links_inline(s,
+function convert_inline_links(s,
 	t, i)
 {
 	t["tail"] = s
@@ -163,20 +176,36 @@ function convert_links_inline(s,
 	return t["head"] t["tail"]
 }
 
-# Match the beginning of the line using the regexes REG[] defined in BEGIN
-# to determine the printer to use.
+# `quoted literal`
+
+function convert_quoted_literals(s,
+	head, tail, quoted, i)
+{
+	tail = s
+	head = ""
+	while (match(tail, /`[^`]*`/)) {
+		quoted = substr(tail, RSTART + 1, RLENGTH - 2)
+		for (i in ESC)
+			gsub("["i"]", "\\" ESC[i], quoted)
+		head = head substr(tail, 1, RSTART - 1) "`" quoted "`"
+		tail = substr(tail, RSTART + RLENGTH)
+	}
+	return head tail
+}
 
 END {
 	for (i = 1; i <= N; i++) {
 		if (LINE[i] ~ /^\t/)
 			continue
-		LINE[i] = convert_links_double(LINE[i])
-		LINE[i] = convert_links_simple(LINE[i])
-		LINE[i] = convert_links_inline(LINE[i])
-		LINE[i] = convert_links_literal(LINE[i])
+		LINE[i] = convert_escape_sequences(LINE[i])
+		LINE[i] = convert_quoted_literals(LINE[i])
+		LINE[i] = convert_double_links(LINE[i])
+		LINE[i] = convert_simple_links(LINE[i])
+		LINE[i] = convert_inline_links(LINE[i])
+		LINE[i] = convert_literal_links(LINE[i])
 	}
 
-	print ""
+	print("")
 
 	for (i = 1; i <= N; i++)
 		print(LINE[i])
