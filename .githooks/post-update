@@ -8,6 +8,7 @@ notwiki-doc html "/srv/www/htdocs/code/notwiki" .
 notwiki-doc gph  "/srv/gopher/notwiki" .
 notwiki-mandoc gph utf8 "/srv/gopher/man" .
 notwiki-mandoc html html "/srv/www/htdocs/code/man" .
+cp "style.css" "/srv/www/htdocs/code"
 
 cd "$tmp"
 
