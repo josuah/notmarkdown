@@ -10,17 +10,17 @@ It supports publication of the same .md files for both http+html and gopher+gph.
 
 How to generate a website?
 --------------------------
-The [notwiki-doc(1)][doc] tool will search for *.md files in
-all $srcdir passed as arguments, and each file $path/file.$ext found, gets
-copied to the matching $dstdir/$path/file.$ext directory.
+The [notwiki-doc(1)][doc] tool will search for `*.md` files in all `$srcdir`
+passed as arguments, and each file `$path/file.$ext` found, gets copied to the
+matching `$dstdir/$path/file.$ext` directory.
 
 	$ cd /home/me/website-document-root/
 	$ notwiki-doc html /srv/www/htdocs/wiki ./wiki
 
 [doc]: /man/notwiki-doc.1/
 
-Here, /home/me/website-document-root/wiki/introdcution/index.md would be
-copied to /srv/www/htdocs/wiki/introduction/index.html.
+Here, `/home/me/website-document-root/wiki/introdcution/index.md` would be
+copied to `/srv/www/htdocs/wiki/introduction/index.html`.
 
 The original .md documents are copied along with the source, permitting the
 wiki user to suggest modifications.
@@ -50,10 +50,10 @@ How to keep links compatible between HTTP and Gopher?
 Strip the protocol (http:, https:, gopher:) from all your own links, and eventually
 remove the domain name as well.
 
-`//example.com/wiki/` and `/wiki/` both get converted to:
+`//example.com/wiki/` and `/wiki/` both get mapped to:
 
- * https://example.com/wiki/index.gph (on web browser with HTTPS)
- * http://example.com/wiki/index.gph (on web browser with HTTP)
+ * https://example.com/wiki/index.html (on web browser with HTTPS)
+ * http://example.com/wiki/index.html (on web browser with HTTP)
  * gopher://example.com/wiki/index.gph (on gopher browsers)
 
 So instead of /wiki/page-name.md, use /wiki/page-name/index.md, and use links
@@ -76,7 +76,7 @@ What can I do with it?
 ### A software project wiki
 
 This documentation is maintained in the `./doc/` directory of the git repo, and
-on every commit, a [git-hook](//code.z0.is/wiki/git-hooks/) regenerates the
+on every commit, a [git-hook](//josuah.net/wiki/git-hooks/) regenerates the
 documentation using NotWiki.
 
 This permits to have the documentation bound to the code akin to Github's wikis
@@ -91,7 +91,7 @@ but self-hosted, and with zero-dependency (portable awk implementation):
 ### A wiki for an existing website/gopherhole
 
 It converts pages and copies them to the destination directory, which can
-have content generated from multiple source. There is no ./index.html/gph
+have content generated from multiple source. There is no `./index.html/gph`
 overridden (unless you added a `./index.md` file yourself), so it will can be
 mixed with content of another static generator.
 
@@ -99,7 +99,7 @@ mixed with content of another static generator.
 Can I change the default theme?
 -------------------------------
 Yes, of course! In fact, there is no default theme, only an example provided
-in the ./doc/ of the git repo of NotMarkdown, but all style, layout, header...
+in the `./doc/` of the git repo of NotMarkdown, but all style, layout, header...
 are provided by you in head.html or head.gph.
 
 NotWiki websites can be something entirely different than documentation sites,
@@ -110,3 +110,5 @@ How does NotMarkdown differ with Markdown?
 ------------------------------------------
 It is a fairly complete version of Markdown without nesting support, further
 further described by [notmarkdown(5)](/man/notmarkdown.5/) man page.
+
+There is a good support for escaping and `\`backtick\`` quoting.
