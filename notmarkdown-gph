@@ -116,13 +116,21 @@ function print_link_item(link, line,
 	  item["path"], item["host"], item["port"]))
 }
 
-function fold_line(s, len)
+function fold_line(s, len,
+	head, tail, i)
 {
-	s = substr(s, 1, len + 1)
-	sub(" *$", "", s)
-	if (length(s) == len + 1)
-		sub(" *[^ ]*$", "", s)
-	return s
+	head = substr(s, 1, len + 1)
+	sub(" *$", "", head)
+	if (length(head) == len + 1)
+		sub(" *[^ ]*$", "", head)
+	if (length(head) == 0) {
+		tail = substr(s, len + 1)
+		head = substr(s, 1, len)
+		if ((i = index(tail, " ")) == 0)
+			return s
+		return head substr(tail, 1, i)
+	}
+	return head
 }
 
 # assert that [ref] is smaller than [replacement text]

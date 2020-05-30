@@ -2,7 +2,7 @@
 # convert a notmarkdown document to an intermediate syntax easy to parse
 
 # For each line of input, if still part of the same block, it append it to the
-# current line LINE[N], and if not, it pushes a new_ref line to the array LINE[++N].
+# current line LINE[N], and if not, it pushes a new line to the array LINE[++N].
 #
 # That is the first pass of parsing: turn a line-based syntax (HTML's blocks
 # element) into an array of single-line syntax (HTML's inline elements).
@@ -17,7 +17,6 @@ BEGIN {
 	REG["ulist"] = "^[-+*] "
 	REG["olist"] = "^[0-9]+\\. "
 	REG["title"] = "^#+ "
-	REG["quote"] = "^> "
 }
 
 /^\t/ {
@@ -27,12 +26,20 @@ BEGIN {
 }
 
 /^```/ {
+	NEW = 1
 	while (getline) {
 		if ($0 ~ /^```/)
 			break
 		LINE[++N] = "\t" $0
 	}
 	next
+}
+
+sub("^> +", "") {
+	NEW = 1
+	LINE[++N] = "> " $0
+	while (getline && sub("^> +", "", $0))
+		LINE[N] = LINE[N] " " $0
 }
 
 !NEW && /^=+$/ {
@@ -58,22 +65,22 @@ $0 == "" {
 	next
 }
 
-# catchall: line with a leading pattern matching of REG[] starts a new_ref block
+# catchall: line with a leading pattern matching of REG[] starts a new block
 
 {
 	sub("^ *", "")
 	sub(" *$", "")
-	for (R in REG)
-		NEW = (NEW || $0 ~ REG[R])
+	for (i in REG)
+		NEW = ($0 ~ REG[i]) ? i : NEW
 }
 
-NEW == 1 {
+NEW {
 	NEW = 0
 	LINE[++N] = $0
 	next
 }
 
-NEW == 0 {
+!NEW {
 	LINE[N] = LINE[N] " " $0
 	next
 }
