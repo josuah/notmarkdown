@@ -8,6 +8,11 @@
 
 BEGIN {
 	HEADER = 1
+
+	TYPE["jpg"] = TYPE["jpeg"] = TYPE["png"] = TYPE["gif"] = "picture"
+	TYPE["mkv"] = TYPE["webm"] = TYPE["avi"] = TYPE["mp4"] = "video"
+	TYPE["mka"] = TYPE["opus"] = TYPE["wav"] = TYPE["mp3"] = "audio"
+	TYPE["flac"] = TYPE["ogg"] = "audio"
 }
 
 # If the previous TAG is not the same as thte current t tag, close the previous 
@@ -23,7 +28,7 @@ function print_hook(s, tag)
 }
 
 function convert_links(s,
-	head, tail, name, ref)
+	head, tail, ref)
 {
 	head = ""
 	tail = s
@@ -36,15 +41,26 @@ function convert_links(s,
 	return head tail
 }
 
-function convert_images(s,
-	head, tail, name, ref)
+function media(link, alt,
+	ext, type)
+{
+	ext = link
+	sub(/.*\./, "", ext)
+	if ((type = TYPE[ext]) == "" || type == "picture")
+		return sprintf("<img src=\"%s\" alt\"%s\"/>", link, alt)
+	return sprintf("<%s controls> <source src=\"%s\"/> %s </%s>",
+	  type, link, alt, type)
+}
+
+function convert_media(s,
+	head, tail, ref)
 {
 	head = ""
 	tail = s
 	while (match(tail, /!\[[^] ]+\]/)) {
 		head = head substr(tail, 1, RSTART - 1)
 		ref = tolower(substr(tail, RSTART + 2, RLENGTH - 3))
-		head = head sprintf("<img src=\"%s\" alt=\"%s\"/>", LINK[ref], TEXT[ref])
+		head = head media(LINK[ref], TEXT[ref])
 		tail = substr(tail, RSTART + RLENGTH)
 	}
 	return head tail
@@ -99,7 +115,7 @@ function convert_text(s)
 {
 	s = convert_syntax(s, "[*][*][^ ][^*]*[^ ][*][*]", 2, "strong")
 	s = convert_syntax(s, "[*][^ ][^*]*[^ ][*]", 1, "em")
-	s = convert_images(s)
+	s = convert_media(s)
 	s = convert_links(s)
 	s = convert_literals(s)
 	return s
