@@ -167,6 +167,12 @@ function print_text_block(pref1, pref2, s,
 		s = print_text_line(pref, s, 80)
 }
 
+function print_blank()
+{
+	if (HEADING + 1 < NR)
+		print("")
+}
+
 HEADER && /^$/ {
 	HEADER = 0
 	next
@@ -187,7 +193,7 @@ HEADER {
 
 BLOCK {
 	if (!BLOCK_PREV)
-		print("")
+		print_blank()
 	gsub(/\t/, "        ")
 	print_escaped("  : " $0)
 	next
@@ -195,25 +201,26 @@ BLOCK {
 
 sub("^\\* ", "", $0) {
 	if (LIST < NR - 1)
-		print("")
-	print_text_block("  • ", "    ", $0)
+		print_blank()
+	print_text_block("• ", "  ", $0)
 	LIST = NR
 	next
 }
 
 sub("^[0-9]+. ", "", $0) {
-	print("")
+	print_blank()
 	print_text_block(sprintf("%2s. ", $1), "    ", $0)
 	next
 }
 
 match($0, "^#+ ") {
-	print("\n")
+	HEADING = NR
 	$0 = substr($0, RSTART + RLENGTH)
+	print("")
 	if (RLENGTH == 1 + 1) {
-		print_escaped("   " $0)
+		print_escaped(" " $0)
 		gsub(".", "━", $0)
-		print("  ━" $0 "━")
+		print("━" $0 "━")
 	} else if (RLENGTH == 2 + 1) {
 		print_escaped($0)
 		gsub(".", "─", $0)
@@ -225,19 +232,19 @@ match($0, "^#+ ") {
 	} else if (RLENGTH >= 5 + 1) {
 		print_escaped("┈┈┈ " $0 " ┈┈┈")
 	} else {
-		print($0)
+		print_escaped($0)
 	}
 	next
 }
 
 sub("^> ", "", $0) {
-	print("")
+	print_blank()
 	print_text_block("  ┊ ", "  ┊ ", $0)
 	next
 }
 
 {
-	print("")
+	print_blank()
 	print_text_block(" ", " ", $0)
 	next
 }
