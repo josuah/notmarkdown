@@ -40,6 +40,7 @@ sub("^> +", "") {
 	LINE[++N] = "> " $0
 	while (getline && sub("^> +", "", $0))
 		LINE[N] = LINE[N] " " $0
+	next
 }
 
 !NEW && /^=+$/ {
@@ -70,6 +71,7 @@ $0 == "" {
 {
 	sub("^ *", "")
 	sub(" *$", "")
+	sub("^[-+*] ", "* ")
 	for (i in REG)
 		NEW = ($0 ~ REG[i]) ? i : NEW
 }

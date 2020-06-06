@@ -163,7 +163,6 @@ function print_text_line(pref, str, len,
 function print_text_block(pref1, pref2, s,
 	pref)
 {
-	print("")
 	for (pref = pref1; length(s) > 0; pref = pref2)
 		s = print_text_line(pref, s, 80)
 }
@@ -195,11 +194,15 @@ BLOCK {
 }
 
 sub("^\\* ", "", $0) {
+	if (LIST < NR - 1)
+		print("")
 	print_text_block("  • ", "    ", $0)
+	LIST = NR
 	next
 }
 
 sub("^[0-9]+. ", "", $0) {
+	print("")
 	print_text_block(sprintf("%2s. ", $1), "    ", $0)
 	next
 }
@@ -228,11 +231,13 @@ match($0, "^#+ ") {
 }
 
 sub("^> ", "", $0) {
+	print("")
 	print_text_block("  ┊ ", "  ┊ ", $0)
 	next
 }
 
 {
+	print("")
 	print_text_block(" ", " ", $0)
 	next
 }
