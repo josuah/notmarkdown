@@ -1,26 +1,26 @@
+NAME = notwiki
 VERSION = 0.5
+DESTDIR =
 PREFIX = /usr/local
 MANPREFIX = ${PREFIX}/share/man
 
-rel = notwiki-${VERSION}
-bin = notmarkdown notmarkdown-gph notmarkdown-html notwiki-doc notwiki-mandoc
-man = ${man1} ${man5}
-man1 = doc/notwiki-doc.1
-man5 = doc/notmarkdown.5
+BIN = notmarkdown notmarkdown-gph notmarkdown-html notwiki-doc notwiki-mandoc
+MAN1 = doc/notwiki-doc.1
+MAN5 = doc/notmarkdown.5
 
 all:
 
-install:
-	mkdir -p ${PREFIX}/bin ${MANPREFIX}/man1
-	cp ${bin} ${PREFIX}/bin
-	cp ${man1} ${MANPREFIX}/man1
+dist:
+	rm -rf ${NAME}-${VERSION}
+	mkdir -p ${NAME}-${VERSION}
+	cp -r README Makefile doc ${BIN} ${NAME}-${VERSION}
+	tar -cf - ${NAME}-${VERSION} | gzip -c >${NAME}-${VERSION}.tar.gz
 
 clean:
-	rm -rf *.tar *.gz notwiki-*/
+	rm -rf
 
-release: clean
-	mkdir -p ${rel}
-	cp -r README Makefile doc ${man} ${bin} ${rel}
-	tar -cf ${rel}.tar ${rel}
-	rm -rf ${rel}
-	gzip ${rel}.tar
+install:
+	mkdir -p ${DESTDIR}${PREFIX}/bin
+	cp -f ${BIN} ${DESTDIR}${PREFIX}/bin
+	mkdir -p ${DESTDIR}${MANPREFIX}/man1
+	cp -f ${MAN1} ${DESTDIR}${MANPREFIX}/man1

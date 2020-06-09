@@ -12,6 +12,6 @@ cp "style.css" "/srv/www/htdocs/code"
 
 cd "$tmp"
 
-make release
+make dist
 cp "notwiki-"*".tar.gz" "/srv/www/htdocs/code/notwiki"
 cp "notwiki-"*".tar.gz" "/srv/gopher/notwiki"
