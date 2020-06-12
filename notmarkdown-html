@@ -121,8 +121,15 @@ function convert_text(s)
 	return s
 }
 
-# Match the beginning of the line using the regexes REG[] defined in BEGIN
-# to determine the printer to use.
+# NotMarkdown intermediate format has special character that do not clash with
+# HTML ones, except for "> " converted back
+{
+	gsub("&", "\\&amp;", $0)
+	gsub("\"", "\\&quot;", $0)
+	gsub("<", "\\&lt;", $0)
+	gsub(">", "\\&gt;", $0)
+	sub("^\\&gt; ", "> ", $0)
+}
 
 HEADER && /^$/ {
 	HEADER = 0
@@ -136,11 +143,10 @@ HEADER {
 	next
 }
 
-{
-	gsub("&", "\\&amp;", s)
-	gsub("<", "\\&lt;", s)
-	gsub(">", "\\&gt;", s)
-	gsub("\"", "\\&quot;", s)
+sub("^> ", "", $0) {
+	print_hook($0, "blockquote")
+	print_escaped(convert_text($0))
+	next
 }
 
 sub("^\t", "", $0) {
@@ -166,12 +172,6 @@ match($0, "^#+ ") {
 	lv = RLENGTH - 1
 	print("")
 	print_escaped(sprintf("<h%d>%s</h%d>", lv, convert_text($0), lv))
-	next
-}
-
-sub("^> ", "", $0) {
-	print_hook($0, "blockquote")
-	print_escaped(convert_text($0))
 	next
 }
 

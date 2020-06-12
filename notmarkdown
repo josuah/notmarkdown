@@ -19,7 +19,7 @@ BEGIN {
 	REG["title"] = "^#+ "
 }
 
-/^\t/ {
+sub("^    ", "\t") || /^\t/ {
 	NEW = 1
 	LINE[++N] = $0
 	next

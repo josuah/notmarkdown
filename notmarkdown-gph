@@ -11,6 +11,8 @@ BEGIN {
 	EXT["gif"] = "g"
 	EXT["jpg"] = EXT["jpeg"] = EXT["png"] = "I"
 	EXT["cgi"] = EXT["dcgi"] = EXT["gph"] = "1"
+	EXT["mkv"] = EXT["webm"] = EXT["avi"] = EXT["mp4"] = "9"
+	EXT["mka"] = EXT["opus"] = EXT["wav"] = EXT["mp3"] = "9"
 }
 
 # match the extension, and default to text/plain
@@ -91,17 +93,17 @@ function parse_link(s, link)
 
 function print_escaped(s)
 {
-        gsub("\\\\u", "_", s)
-        gsub("\\\\q", "`", s)
-        gsub("\\\\S", "[", s)
-        gsub("\\\\s", "]", s)
-        gsub("\\\\R", "(", s)
-        gsub("\\\\r", ")", s)
-        gsub("\\\\A", "<", s)
-        gsub("\\\\a", ">", s)
-        gsub("\\\\w", "*", s)
-        gsub("\\\\e", "\\", s)
-        print(s)
+	gsub("\\\\u", "_", s)
+	gsub("\\\\q", "`", s)
+	gsub("\\\\S", "[", s)
+	gsub("\\\\s", "]", s)
+	gsub("\\\\R", "(", s)
+	gsub("\\\\r", ")", s)
+	gsub("\\\\A", "<", s)
+	gsub("\\\\a", ">", s)
+	gsub("\\\\w", "*", s)
+	gsub("\\\\e", "\\", s)
+	print(s)
 }
 
 function print_link_item(link, line,
@@ -136,12 +138,13 @@ function fold_line(s, len,
 # assert that [ref] is smaller than [replacement text]
 
 function print_text_line(pref, str, len,
-	out, fold, ref, links, i)
+	out, fold, ref, links, n)
 {
 	len -= length(pref)
 
+	n = 0
 	while (match(fold_line(str, len - length(out)), /\[[^] ]+\]/)) {
-		links[ref = substr(str, RSTART + 1, RLENGTH - 2)]++
+		n += (links[ref = substr(str, RSTART + 1, RLENGTH - 2)] = 1)
 		out = out substr(str, 1, RSTART - 1) "[" TEXT[ref] "]"
 		str = substr(str, RSTART + RLENGTH)
 	}
@@ -150,11 +153,11 @@ function print_text_line(pref, str, len,
 	str = substr(str, length(fold) + 1)
 	sub("^ *", "", str)
 
-	if (length(links) == 1)
+	if (n == 1)
 		print_link_item(LINK[ref], pref out)
-	if (length(links) != 1)
+	if (n != 1)
 		print_escaped(pref out)
-	if (length(links) >= 2)
+	if (n >= 2)
 		for (i in links)
 			print_link_item(LINK[i], "    -> " TEXT[i])
 	return str
@@ -207,9 +210,9 @@ sub("^\\* ", "", $0) {
 	next
 }
 
-sub("^[0-9]+. ", "", $0) {
+/^[0-9]+. / {
 	print_blank()
-	print_text_block(sprintf("%2s. ", $1), "    ", $0)
+	print_text_block($0, "   ", $0)
 	next
 }
 
@@ -218,21 +221,19 @@ match($0, "^#+ ") {
 	$0 = substr($0, RSTART + RLENGTH)
 	print("")
 	if (RLENGTH == 1 + 1) {
-		print_escaped(" " $0)
+		print_text_block("", "", $0)
 		gsub(".", "━", $0)
-		print("━" $0 "━")
+		print($0)
 	} else if (RLENGTH == 2 + 1) {
-		print_escaped($0)
+		print_text_block("", "", $0)
 		gsub(".", "─", $0)
 		print($0)
 	} else if (RLENGTH == 3 + 1) {
-		print_escaped("═══ " $0 " ═══")
+		print_text_block("═══ ", "", $0 " ═══")
 	} else if (RLENGTH == 4 + 1) {
-		print_escaped("─── " $0 " ───")
-	} else if (RLENGTH >= 5 + 1) {
-		print_escaped("┈┈┈ " $0 " ┈┈┈")
+		print_text_block("─── ", "", $0 " ───")
 	} else {
-		print_escaped($0)
+		print_text_block("┈┈┈ ", "", $0 " ┈┈┈")
 	}
 	next
 }
