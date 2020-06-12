@@ -1,5 +1,5 @@
 NAME = notwiki
-VERSION = 0.5
+VERSION = 0.6
 DESTDIR =
 PREFIX = /usr/local
 MANPREFIX = ${PREFIX}/share/man
@@ -8,7 +8,7 @@ BIN = notmarkdown notmarkdown-gph notmarkdown-html notwiki-doc notwiki-mandoc
 MAN1 = doc/notwiki-doc.1
 MAN5 = doc/notmarkdown.5
 
-all:
+all: ${BIN}
 
 dist:
 	rm -rf ${NAME}-${VERSION}

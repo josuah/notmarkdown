@@ -195,14 +195,14 @@ BLOCK {
 	if (!BLOCK_PREV)
 		print_blank()
 	gsub(/\t/, "        ")
-	print_escaped("  : " $0)
+	print_escaped(" ┊ " $0)
 	next
 }
 
 sub("^\\* ", "", $0) {
 	if (LIST < NR - 1)
 		print_blank()
-	print_text_block("• ", "  ", $0)
+	print_text_block(" • ", "   ", $0)
 	LIST = NR
 	next
 }
@@ -239,7 +239,7 @@ match($0, "^#+ ") {
 
 sub("^> ", "", $0) {
 	print_blank()
-	print_text_block("  ┊ ", "  ┊ ", $0)
+	print_text_block(" ┊ ", " ┊ ", $0)
 	next
 }
 
