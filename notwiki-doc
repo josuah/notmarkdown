@@ -1,6 +1,4 @@
-#!/bin/sh -e
-# convert the subdirs passed as argument recursively to either gph or html
-
+#!/bin/sh -eau
 u="${0##*/} <file-extension> <dest-dir> <src-dir>..."
 ext=${1:?$u} dest=${2:?$u}
 shift 2
