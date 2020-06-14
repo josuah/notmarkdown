@@ -5,8 +5,6 @@ PREFIX = /usr/local
 MANPREFIX = ${PREFIX}/share/man
 
 BIN = notmarkdown notmarkdown-gph notmarkdown-html notwiki-doc notwiki-mandoc
-MAN1 = doc/notwiki-doc.1
-MAN5 = doc/notmarkdown.5
 
 all: ${BIN}
 
@@ -23,4 +21,6 @@ install:
 	mkdir -p ${DESTDIR}${PREFIX}/bin
 	cp -f ${BIN} ${DESTDIR}${PREFIX}/bin
 	mkdir -p ${DESTDIR}${MANPREFIX}/man1
-	cp -f ${MAN1} ${DESTDIR}${MANPREFIX}/man1
+	cp -f doc/*.1 ${DESTDIR}${MANPREFIX}/man1
+	mkdir -p ${DESTDIR}${MANPREFIX}/man5
+	cp -f doc/*.5 ${DESTDIR}${MANPREFIX}/man5
