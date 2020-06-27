@@ -203,7 +203,7 @@ function convert_quoted_literals(s,
 }
 
 END {
-	for (i = 1; i <= N; i++) {
+	for (i = 1; i in LINE; i++) {
 		if (LINE[i] ~ /^\t/)
 			continue
 		LINE[i] = convert_escape_sequences(LINE[i])
@@ -215,8 +215,7 @@ END {
 	}
 
 	print("")
-
-	for (i = 1; i <= N; i++)
+	for (i = 1; i in LINE; i++)
 		print(LINE[i])
 }
 

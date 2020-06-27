@@ -19,8 +19,8 @@ clean:
 
 install:
 	mkdir -p ${DESTDIR}${PREFIX}/bin
-	cp -f ${BIN} ${DESTDIR}${PREFIX}/bin
+	cp -rf ${BIN} ${DESTDIR}${PREFIX}/bin
 	mkdir -p ${DESTDIR}${MANPREFIX}/man1
-	cp -f doc/*.1 ${DESTDIR}${MANPREFIX}/man1
+	cp -rf doc/*.1 ${DESTDIR}${MANPREFIX}/man1
 	mkdir -p ${DESTDIR}${MANPREFIX}/man5
-	cp -f doc/*.5 ${DESTDIR}${MANPREFIX}/man5
+	cp -rf doc/*.5 ${DESTDIR}${MANPREFIX}/man5

@@ -150,8 +150,7 @@ function print_text_line(pref, str, len,
 	}
 	fold = fold_line(str, len - length(out))
 	out = out fold
-	str = substr(str, length(fold) + 1)
-	sub("^ *", "", str)
+	str = substr(str, length(fold) + 2)
 
 	if (n == 1)
 		print_link_item(LINK[ref], pref out)
