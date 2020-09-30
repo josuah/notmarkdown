@@ -15,7 +15,7 @@ dist:
 	tar -cf - ${NAME}-${VERSION} | gzip -c >${NAME}-${VERSION}.tar.gz
 
 clean:
-	rm -rf
+	rm -rf ${NAME}-${VERSION} *.gz
 
 install:
 	mkdir -p ${DESTDIR}${PREFIX}/bin
@@ -24,3 +24,10 @@ install:
 	cp -rf doc/*.1 ${DESTDIR}${MANPREFIX}/man1
 	mkdir -p ${DESTDIR}${MANPREFIX}/man5
 	cp -rf doc/*.5 ${DESTDIR}${MANPREFIX}/man5
+
+deploy: dist
+	mv doc/* .
+	notwiki-doc html . .
+	notwiki-doc gph  . .
+	notwiki-mandoc gph utf8 . .
+	notwiki-mandoc html html . .
