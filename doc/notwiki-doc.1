@@ -13,8 +13,8 @@
 .
 .Nm notwiki-doc
 .Ar ext
-.Ar dest
-.Ar src Ns ...
+.Ar src
+.Ar dst
 .
 .
 .Sh DESCRIPTION
@@ -53,10 +53,10 @@ File converted to the equivalent .gph or .html pages.
 .
 .Sh EXAMPLES
 .
-.D1 notwiki-doc html /srv/www/htdocs/wiki/ ./wiki
+.D1 notwiki-doc html ./wiki /srv/www/htdocs/wiki
 .
 .Pp
-.D1 notwiki-doc gph /srv/gopher/wiki/ ./wiki
+.D1 notwiki-doc gph . /var/www/htdocs/
 .
 .
 .Sh SEE ALSO

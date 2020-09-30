@@ -1,12 +1,9 @@
-#!/bin/sh -eau
-u="${0##*/} <file-extension> <dest-dir> <src-dir>..."
-ext=${1:?$u} dest=${2:?$u}
-shift 2
+#!/bin/sh -eu
+export ext="$1" src="$2" dst="$3"
 
-find "$@" -name "*.md" | while IFS= read -r file; do
-	echo "$file" >&2
-	mkdir -p "$dest/$(dirname "$file")"
-	cp "$file" "$dest/$(dirname "$file")"
-	exec >"$dest/${file%.md}.$ext"
-	notmarkdown "$file" | notmarkdown-"$ext" | cat head.$ext -
-done
+find "$src" -name "*.md" -print -exec sh -ec '
+	file=${0#$src}
+	mkdir -p "$dst/${file%/*}"
+	exec >$dst/${file%.md}.$ext
+	notmarkdown "$src/$file" | notmarkdown-"$ext" | cat "$src/head.$ext" -
+' {} \;
