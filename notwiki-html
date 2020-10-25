@@ -1,0 +1,10 @@
+#!/bin/sh -eu
+
+export src="$1"
+
+find "$src" -name "*.md" -print -exec sh -ec '
+	file=${0#$src}
+	mkdir -p "$PWD/${file%/*}"
+	cp "$src/head.html" "$PWD/${file%.md}.html"
+	notmarkdown "$src/$file" | notmarkdown-html >>$PWD/${file%.md}.html
+' {} \;

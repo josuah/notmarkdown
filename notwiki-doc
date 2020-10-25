@@ -1,9 +1,0 @@
-#!/bin/sh -eu
-export ext="$1" src="$2" dst="$3"
-
-find "$src" -name "*.md" -print -exec sh -ec '
-	file=${0#$src}
-	mkdir -p "$dst/${file%/*}"
-	exec >$dst/${file%.md}.$ext
-	notmarkdown "$src/$file" | notmarkdown-"$ext" | cat "$src/head.$ext" -
-' {} \;

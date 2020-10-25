@@ -7,6 +7,113 @@
 # That is the first pass of parsing: turn a line-based syntax (HTML's blocks
 # element) into an array of single-line syntax (HTML's inline elements).
 
+function convert_escape_sequences(s,
+	i)
+{
+	gsub(/\\\\/, "\\e", s)
+	for (i in ESC)
+		gsub("\\\\["i"]", "\\" ESC[i], s)
+	return s
+}
+
+function new_ref(\
+	i)
+{
+	for (i = 1; ("ref#"i in TEXT) || ("ref#"i in LINK); i++)
+		continue
+	TEXT["ref#"i]++
+	return "ref#"i
+}
+
+function parse_link(t, beg, len, ref, link, text)
+{
+	gsub(" ", "%20", link)
+	printf("%s %s %s\n", ref, link, text)
+	t["head"] = t["head"] substr(t["tail"], 1, beg - 1) "[" ref "]"
+	t["tail"] = substr(t["tail"], beg + len)
+}
+
+# <txtref>
+
+function convert_literal_links(s,
+	t)
+{
+	t["tail"] = s
+	t["head"] = ""
+	while (match(t["tail"], /<[^> ]+>/)) {
+		parse_link(t, RSTART, RLENGTH, new_ref(),
+		  substr(t["tail"], RSTART + 1, RLENGTH - 2),
+		  substr(t["tail"], RSTART + 1, RLENGTH - 2))
+	}
+	return t["head"] t["tail"]
+}
+
+# [[txtref]]
+
+function convert_double_links(s,
+	t, txtref)
+{
+	t["tail"] = s
+	t["head"] = ""
+	while (match(t["tail"], /\[\[[^] ]+\]\]/)) {
+		txtref = substr(t["tail"], RSTART + 2, RLENGTH - 4)
+		parse_link(t, RSTART, RLENGTH, tolower(txtref),
+		  LINK[tolower(txtref)],
+		  txtref)
+	}
+	return t["head"] t["tail"]
+}
+
+# [text][ref]
+
+function convert_simple_links(s,
+	t, i, ref)
+{
+	t["tail"] = s
+	t["head"] = ""
+	while (match(t["tail"], /\[[^]]+\]\[[^] ]+\]/)) {
+		i = index(substr(t["tail"], RSTART, RLENGTH), "][")
+		ref = substr(t["tail"], RSTART + i + 1, RLENGTH - i - 2)
+		parse_link(t, RSTART, RLENGTH, ref,
+		  LINK[ref],
+		  substr(t["tail"], RSTART + 1, i - 2))
+	}
+	return t["head"] t["tail"]
+}
+
+# [text](link)
+
+function convert_inline_links(s,
+	t, i)
+{
+	t["tail"] = s
+	t["head"] = ""
+	while (match(t["tail"], /\[[^]]+\]\([^) ]+\)/)) {
+		i = index(t["tail"], "](")
+		parse_link(t, RSTART, RLENGTH, new_ref(),
+		  substr(t["tail"], i + 2, RLENGTH + RSTART - i - 3),
+		  substr(t["tail"], RSTART + 1, i - RSTART - 1))
+	}
+	return t["head"] t["tail"]
+}
+
+# `quoted literal`
+
+function convert_quoted_literals(s,
+	head, tail, quoted, i)
+{
+	tail = s
+	head = ""
+	while (match(tail, /`[^`]*`/)) {
+		quoted = substr(tail, RSTART + 1, RLENGTH - 2)
+		for (i in ESC)
+			gsub("["i"]", "\\" ESC[i], quoted)
+		head = head substr(tail, 1, RSTART - 1) "`" quoted "`"
+		tail = substr(tail, RSTART + RLENGTH)
+	}
+	return head tail
+}
+
 BEGIN {
 	NEW = 1
 
@@ -87,121 +194,6 @@ NEW {
 	next
 }
 
-function convert_escape_sequences(s,
-	i)
-{
-	gsub(/\\\\/, "\\e", s)
-	for (i in ESC)
-		gsub("\\\\["i"]", "\\" ESC[i], s)
-	return s
-}
-
-function new_ref(\
-	i)
-{
-	for (i = 1; ("ref#"i in TEXT) || ("ref#"i in LINK); i++)
-		continue
-	TEXT["ref#"i]++
-	return "ref#"i
-}
-
-# helper function to avoid duplicated code: append the beginning of t["tail"]
-# to t["head"] along with "[" ref "]", and strip what was added from t["tail"]
-# and then print the reference with the link and text.
-
-function parse_link(t, beg, len, ref, link, text)
-{
-	gsub(" ", "%20", link)
-	printf("%s %s %s\n", ref, link, text)
-	t["head"] = t["head"] substr(t["tail"], 1, RSTART - 1) "[" ref "]"
-	t["tail"] = substr(t["tail"], RSTART + RLENGTH)
-}
-
-# <txtref>
-
-function convert_literal_links(s,
-	t)
-{
-	t["tail"] = s
-	t["head"] = ""
-	while (match(t["tail"], /<[^> ]+>/)) {
-		parse_link(t, RSTART, RLENGTH,
-		  new_ref(),
-		  substr(t["tail"], RSTART + 1, RLENGTH - 2),
-		  substr(t["tail"], RSTART + 1, RLENGTH - 2))
-	}
-	return t["head"] t["tail"]
-}
-
-# [[txtref]]
-
-function convert_double_links(s,
-	t, txtref)
-{
-	t["tail"] = s
-	t["head"] = ""
-	while (match(t["tail"], /\[\[[^] ]+\]\]/)) {
-		txtref = substr(t["tail"], RSTART + 2, RLENGTH - 4)
-		parse_link(t, RSTART, RLENGTH,
-		  tolower(txtref),
-		  LINK[tolower(txtref)],
-		  txtref)
-	}
-	return t["head"] t["tail"]
-}
-
-# [text][ref]
-
-function convert_simple_links(s,
-	t, i, ref)
-{
-	t["tail"] = s
-	t["head"] = ""
-	while (match(t["tail"], /\[[^]]+\]\[[^] ]+\]/)) {
-		i = index(substr(t["tail"], RSTART, RLENGTH), "][")
-		ref = substr(t["tail"], RSTART + i + 1, RLENGTH - i - 2)
-		parse_link(t, RSTART, RLENGTH,
-		  ref,
-		  LINK[ref],
-		  substr(t["tail"], RSTART + 1, i - 2))
-	}
-	return t["head"] t["tail"]
-}
-
-# [text](link)
-
-function convert_inline_links(s,
-	t, i)
-{
-	t["tail"] = s
-	t["head"] = ""
-	while (match(t["tail"], /\[[^]]+\]\([^) ]+\)/)) {
-		i = index(t["tail"], "](")
-		parse_link(t, RSTART, RLENGTH,
-		  new_ref(),
-		  substr(t["tail"], i + 2, RLENGTH + RSTART - i - 3),
-		  substr(t["tail"], RSTART + 1, i - RSTART - 1))
-	}
-	return t["head"] t["tail"]
-}
-
-# `quoted literal`
-
-function convert_quoted_literals(s,
-	head, tail, quoted, i)
-{
-	tail = s
-	head = ""
-	while (match(tail, /`[^`]*`/)) {
-		quoted = substr(tail, RSTART + 1, RLENGTH - 2)
-		for (i in ESC)
-			gsub("["i"]", "\\" ESC[i], quoted)
-		head = head substr(tail, 1, RSTART - 1) "`" quoted "`"
-		tail = substr(tail, RSTART + RLENGTH)
-	}
-	return head tail
-}
-
 END {
 	for (i = 1; i in LINE; i++) {
 		if (LINE[i] ~ /^\t/)
@@ -219,6 +211,6 @@ END {
 		print(LINE[i])
 }
 
-# NOTE: to extend this markup, such as supporting this "NOTE:" tag, a regex
+# NOTE: to extend this markup, such as supporting this "NOTE:" tag, add a regex
 # matching the beginning of the line in the REG[] array at BEGIN, and a handler
 # rule in each notmarkdown-* backend.

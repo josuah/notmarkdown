@@ -4,26 +4,29 @@ DESTDIR =
 PREFIX = /usr/local
 MANPREFIX = ${PREFIX}/share/man
 
-BIN = notmarkdown notmarkdown-gph notmarkdown-html notwiki-doc notwiki-mandoc
+BIN = notmarkdown notmarkdown-gph notmarkdown-html notwiki-gph notwiki-html notwiki-mandoc
+MAN1 = notwiki-gph.1 notwiki-html.1
+MAN5 = notmarkdown.5
 
 all: ${BIN}
 
 dist:
 	rm -rf ${NAME}-${VERSION}
-	mkdir -p ${NAME}-${VERSION}
-	cp -r README Makefile doc ${BIN} ${NAME}-${VERSION}
-	tar -cf - ${NAME}-${VERSION} | gzip -c >${NAME}-${VERSION}.tar.gz
+	mkdir -p tmp/${NAME}-${VERSION}
+	cp -r ${MAN1} ${MAN5} README Makefile ${BIN} tmp/${NAME}-${VERSION}
+	tar -C tmp -cf - ${NAME}-${VERSION} | gzip -c >${NAME}-${VERSION}.tar.gz
+	rm -rf tmp
 
 clean:
-	rm -rf index.* *.[0-9] ${NAME}-${VERSION} *.gz
+	rm -f index.* ${NAME}-${VERSION} *.gz
 
 install:
 	mkdir -p ${DESTDIR}${PREFIX}/bin
 	cp -rf ${BIN} ${DESTDIR}${PREFIX}/bin
 	mkdir -p ${DESTDIR}${MANPREFIX}/man1
-	cp -rf doc/*.1 ${DESTDIR}${MANPREFIX}/man1
+	cp -rf ${MAN1} ${DESTDIR}${MANPREFIX}/man1
 	mkdir -p ${DESTDIR}${MANPREFIX}/man5
-	cp -rf doc/*.5 ${DESTDIR}${MANPREFIX}/man5
+	cp -rf ${MAN5} ${DESTDIR}${MANPREFIX}/man5
 
 deploy: dist
 	notwiki-doc html doc .

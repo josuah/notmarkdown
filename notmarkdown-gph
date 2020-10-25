@@ -31,12 +31,12 @@ function file_ext_type(s,
 function parse_uri(s, link,
 	i)
 {
-	if ((i = index(s, "://")) > 0) {
+	if (i = index(s, "://")) {
 		link["proto"] = substr(s, 1, i - 1)
 		s = substr(s, i + 3)
 	}
 
-	if ((i = index(s, "/"))) {
+	if (i = index(s, "/")) {
 		link["host"] = substr(s, 1, i - 1)
 		s = substr(s, i + 1)
 	} else {
@@ -44,7 +44,7 @@ function parse_uri(s, link,
 		s = ""
 	}
 
-	if ((i = index(link["host"], ":"))) {
+	if (i = index(link["host"], ":")) {
 		link["port"] = substr(link["host"], i + 1)
 		link["host"] = substr(link["host"], 1, i - 1)
 	}
@@ -62,6 +62,17 @@ function strip_gopher_type(link)
 	}
 }
 
+# vHost support on gopher if ENVIRON["VHOST"] is present
+
+function gopher_vhost(s, link)
+{
+	if ("VHOST" in ENVIRON) {
+		if (link["host"] == "")
+			link["host"] = ENVIRON["path"]
+		link["path"] = "/" link["host"]
+	}
+}
+
 function parse_link(s, link)
 {
 	link["host"] = "server"
@@ -71,12 +82,14 @@ function parse_link(s, link)
 	if (s ~ "^//") {
 		parse_uri(substr(s, 3), link)
 		link["type"] = file_ext_type(link["path"])
+		gopher_vhost(link)
 		return
 	}
 
 	if (s ~ "^/") {
 		link["path"] = s
 		link["type"] = file_ext_type(link["path"])
+		gopher_vhost(link)
 		return
 	}
 
@@ -106,7 +119,7 @@ function print_escaped(s)
 	print(s)
 }
 
-function print_link_item(link, line,
+function print_link(link, line,
 	item)
 {
 	parse_link(link, item)
@@ -137,7 +150,7 @@ function fold_line(s, len,
 
 # assert that [ref] is smaller than [replacement text]
 
-function print_text_line(pref, str, len,
+function print_line(pref, str, len,
 	out, fold, ref, links, n)
 {
 	len -= length(pref)
@@ -153,20 +166,20 @@ function print_text_line(pref, str, len,
 	str = substr(str, length(fold) + 2)
 
 	if (n == 1)
-		print_link_item(LINK[ref], pref out)
+		print_link(LINK[ref], pref out)
 	if (n != 1)
 		print_escaped(pref out)
 	if (n >= 2)
 		for (i in links)
-			print_link_item(LINK[i], "    -> " TEXT[i])
+			print_link(LINK[i], "    -> " TEXT[i])
 	return str
 }
 
-function print_text_block(pref1, pref2, s,
+function print_block(pref1, pref2, s,
 	pref)
 {
 	for (pref = pref1; length(s) > 0; pref = pref2)
-		s = print_text_line(pref, s, 80)
+		s = print_line(pref, s, 80)
 }
 
 function print_blank()
@@ -204,14 +217,14 @@ BLOCK {
 sub("^\\* ", "", $0) {
 	if (LIST < NR - 1)
 		print_blank()
-	print_text_block(" • ", "   ", $0)
+	print_block(" • ", "   ", $0)
 	LIST = NR
 	next
 }
 
 /^[0-9]+. / {
 	print_blank()
-	print_text_block($0, "   ", $0)
+	print_block($0, "   ", $0)
 	next
 }
 
@@ -220,32 +233,32 @@ match($0, "^#+ ") {
 	$0 = substr($0, RSTART + RLENGTH)
 	print("")
 	if (RLENGTH == 1 + 1) {
-		print_text_block("", "", $0)
+		print_block("", "", $0)
 		gsub(".", "━", $0)
 		print($0)
 	} else if (RLENGTH == 2 + 1) {
-		print_text_block("", "", $0)
+		print_block("", "", $0)
 		gsub(".", "─", $0)
 		print($0)
 	} else if (RLENGTH == 3 + 1) {
-		print_text_block("═══ ", "", $0 " ═══")
+		print_block("═══ ", "", $0 " ═══")
 	} else if (RLENGTH == 4 + 1) {
-		print_text_block("─── ", "", $0 " ───")
+		print_block("─── ", "", $0 " ───")
 	} else {
-		print_text_block("┈┈┈ ", "", $0 " ┈┈┈")
+		print_block("┈┈┈ ", "", $0 " ┈┈┈")
 	}
 	next
 }
 
 sub("^> ", "", $0) {
 	print_blank()
-	print_text_block(" ┊ ", " ┊ ", $0)
+	print_block(" ┊ ", " ┊ ", $0)
 	next
 }
 
 {
 	print_blank()
-	print_text_block(" ", " ", $0)
+	print_block(" ", " ", $0)
 	next
 }
 
