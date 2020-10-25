@@ -27,9 +27,3 @@ install:
 	cp -rf ${MAN1} ${DESTDIR}${MANPREFIX}/man1
 	mkdir -p ${DESTDIR}${MANPREFIX}/man5
 	cp -rf ${MAN5} ${DESTDIR}${MANPREFIX}/man5
-
-deploy: dist
-	notwiki-doc html doc .
-	notwiki-doc gph doc .
-	notwiki-mandoc gph utf8 doc .
-	notwiki-mandoc html html doc .

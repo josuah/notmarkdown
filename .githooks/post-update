@@ -2,14 +2,13 @@
 trap 'rm -rf "$tmp"' INT TERM EXIT HUP
 tmp=$(git-hooks-workdir "$@")
 
-cd "$tmp/doc"
-notwiki-doc html /srv/http/vhost/code/notwiki .
-notwiki-doc gph  /srv/gopher/notwiki .
-notwiki-mandoc gph utf8 /srv/gopher/man .
-notwiki-mandoc html html /srv/http/vhost/code/man .
-cp style.css /srv/http/vhost/code
+export VHOST=notwiki.z0.is
+
+(cd /var/www/htdocs/notwiki;	notwiki-html "$tmp/.site")
+(cd /var/gopher;		notwiki-gph "$tmp/.site")
+cp "$tmp/.site/style.css" /var/www/htdocs/notwiki
 
 cd "$tmp"
 make dist
-cp *.tar.gz /srv/http/vhost/code/notwiki
-cp *.tar.gz /srv/gopher/notwiki
+cp *.tar.gz /var/www/htdocs/notwiki/
+cp *.tar.gz /var/gopher/notwiki.z0.is/
