@@ -69,6 +69,7 @@ function gopher_vhost(s, link)
 	if ("VHOST" in ENVIRON) {
 		if (link["host"] == "")
 			link["host"] = ENVIRON["path"]
+		sub(ENVIRON["REGEX"], "", link["host"])
 		link["path"] = "/" link["host"]
 	}
 }
