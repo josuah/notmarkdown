@@ -64,13 +64,19 @@ function strip_gopher_type(link)
 
 # vHost support on gopher if ENVIRON["VHOST"] is present
 
-function gopher_vhost(s, link)
+function gopher_vhost(link,
+	s)
 {
 	if ("VHOST" in ENVIRON) {
 		if (link["host"] == "")
-			link["host"] = ENVIRON["path"]
-		sub(ENVIRON["REGEX"], "", link["host"])
-		link["path"] = "/" link["host"]
+			link["host"] = ENVIRON["VHOST"]
+		if (i = index(link["host"] "$", "." ENVIRON["BASEDOM"]) "$") {
+			s = substr(link["host"], i-1)
+			link["path"] = "/" s link["path"]
+			link["host"] = ENVIRON["BASEDOM"]
+		} else {
+			link["path"] = "/" link["host"] link["path"]
+		}
 	}
 }
 
