@@ -1,14 +1,2 @@
 #!/bin/sh -ex
-trap 'rm -rf "$tmp"' INT TERM EXIT HUP
-tmp=$(git-hooks-workdir "$@")
-
-export VHOST=notwiki.z0.is
-
-(cd /var/www/htdocs/notwiki;	notwiki-html "$tmp/.site")
-(cd /var/gopher;		notwiki-gph "$tmp/.site")
-cp "$tmp/.site/style.css" /var/www/htdocs/notwiki
-
-cd "$tmp"
-make dist
-cp *.tar.gz /var/www/htdocs/notwiki/
-cp *.tar.gz /var/gopher/notwiki.z0.is/
+exec deploy /var/www/htdocs/z0is/notwiki
