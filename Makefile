@@ -28,7 +28,7 @@ install:
 	mkdir -p ${DESTDIR}${MANPREFIX}/man5
 	cp -rf ${MAN5} ${DESTDIR}${MANPREFIX}/man5
 
-deploy: dist
+site: dist
 	notwiki-html .site
 	notwiki-gph .site
 	cp .site/style.css .

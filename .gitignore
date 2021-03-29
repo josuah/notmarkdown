@@ -1,2 +1,4 @@
 *.tar
 *.gz
+/index.*
+/style.css
