@@ -11,14 +11,11 @@ MAN5 = notmarkdown.5
 all: ${BIN}
 
 dist:
-	rm -rf ${NAME}-${VERSION}
-	mkdir -p tmp/${NAME}-${VERSION}
-	cp -r ${MAN1} ${MAN5} README Makefile ${BIN} tmp/${NAME}-${VERSION}
-	tar -C tmp -cf - ${NAME}-${VERSION} | gzip -c >${NAME}-${VERSION}.tar.gz
-	rm -rf tmp
+	git archive v${VERSION} --prefix=notwiki-${VERSION}/ \
+	  | gzip >notwiki-${VERSION}.tgz
 
 clean:
-	rm -f index.* ${NAME}-${VERSION} *.gz
+	rm -f index.* *.tgz
 
 install:
 	mkdir -p ${DESTDIR}${PREFIX}/bin
