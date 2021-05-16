@@ -43,13 +43,13 @@ $ notwiki-gph ~/wiki-source/
 .Ed
 .
 .Pp
-Map vHosts to suffix for converting an HTTP website:
+Map vHosts to prefix for converting an HTTP website:
 .
 .Bd -literal
 $ cd /var/gopher
-$ VHOST=wiki.example.com notwiki-gph ~/wiki.example.com/
-$ VHOST=www.example.com notwiki-gph ~/www.example.com/
-$ VHOST=video.example.com notwiki-gph ~/video.example.com/
+$ SERVER=wiki.example.com PREFIX=wiki notwiki-gph ~/wiki/
+$ SERVER=www.example.com PREFIX=www notwiki-gph ~/www/
+$ SERVER=video.example.com PREFIX=video notwiki-gph ~/video/
 .Ed
 .
 .Sh SEE ALSO

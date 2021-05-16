@@ -62,22 +62,15 @@ function strip_gopher_type(link)
 	}
 }
 
-# vHost support on gopher if ENVIRON["VHOST"] is present
+# set the prefix or default server according to $PREFIX and $SERVER
 
 function gopher_vhost(link,
 	s)
 {
-	if ("VHOST" in ENVIRON) {
-		if (link["host"] == "")
-			link["host"] = ENVIRON["VHOST"]
-		if (i = index(link["host"] "$", "." ENVIRON["BASEDOM"]) "$") {
-			s = substr(link["host"], i-1)
-			link["path"] = "/" s link["path"]
-			link["host"] = ENVIRON["BASEDOM"]
-		} else {
-			link["path"] = "/" link["host"] link["path"]
-		}
-	}
+	if ("SERVER" in ENVIRON && link["host"] == "")
+		link["host"] = ENVIRON["SERVER"]
+	if ("PREFIX" in ENVIRON)
+		link["path"] = "/" ENVIRON["PREFIX"] link["path"]
 }
 
 function parse_link(s, link)

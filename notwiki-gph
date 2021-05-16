@@ -1,10 +1,10 @@
 #!/bin/sh -eu
 
-export src="$1" VHOST="${VHOST:-}"
+export src="$1"
 
-find "$src" -name "*.md" -print -exec sh -ec '
+find "$src" -name "*.md" -print -exec sh -euc '
 	file=${0#$src}
-	mkdir -p "$PWD/$VHOST/${file%/*}"
-	cp "$src/head.gph" "$PWD/$VHOST/${file%.md}.gph"
-	notmarkdown "$src/$file" | notmarkdown-gph >>$PWD/$VHOST/${file%.md}.gph
+	mkdir -p "$PWD/${file%/*}"
+	cp "$src/head.gph" "$PWD/${file%.md}.gph"
+	notmarkdown "$src/$file" | notmarkdown-gph >>$PWD/${file%.md}.gph
 ' {} \;

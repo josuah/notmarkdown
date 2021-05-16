@@ -1,15 +1,14 @@
 NotWiki
 =======
 
-[NotWiki](//code.z0.is/notwiki/) is a very simple site generator tool, that
+[NotWiki](/notwiki/) is a very simple site generator tool, that
 support a simple subset of markdown in which this document is formatted:
 NotMarkdown.
 
 It supports publication of the same .md files for both http+html and gopher+gph.
 
 This documentation is maintained in the `./doc/` directory of the git repo, and
-on every commit, a [git-hook](//josuah.net/wiki/git-hooks/) regenerates the
-documentation using NotWiki.
+on `make site`, a build target regenerates the documentation using NotWiki.
 
 How to use it?
 --------------
@@ -36,7 +35,7 @@ converted document.
 How to get it?
 --------------
 ```
-$ git clone git://code.z0.is/notwiki
+$ git clone git://git.z0.is/notwiki
 $ cd notwiki
 $ make PREFIX=/usr/local MANPREFIX=/usr/local/man install
 ```

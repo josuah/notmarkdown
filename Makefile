@@ -26,6 +26,6 @@ install:
 	cp -rf ${MAN5} ${DESTDIR}${MANPREFIX}/man5
 
 site: dist
-	notwiki-html .site
-	notwiki-gph .site
+	notmarkdown README | notmarkdown-html | cat .site/head.html - >index.html
+	notmarkdown README | notmarkdown-gph | cat .site/head.gph - >index.gph
 	cp .site/style.css .
