@@ -10,10 +10,6 @@ MAN5 = notmarkdown.5
 
 all: ${BIN}
 
-dist:
-	git archive v${VERSION} --prefix=notwiki-${VERSION}/ \
-	  | gzip >notwiki-${VERSION}.tgz
-
 clean:
 	rm -f index.* *.tgz
 
@@ -25,7 +21,11 @@ install:
 	mkdir -p ${DESTDIR}${MANPREFIX}/man5
 	cp -rf ${MAN5} ${DESTDIR}${MANPREFIX}/man5
 
+dist:
+	git archive v${VERSION} --prefix=notwiki-${VERSION}/ \
+	  | gzip >notwiki-${VERSION}.tgz
+
 site: dist
-	notmarkdown README | notmarkdown-html | cat .site/head.html - >index.html
-	notmarkdown README | notmarkdown-gph | cat .site/head.gph - >index.gph
-	cp .site/style.css .
+	notmarkdown README.md | notmarkdown-html | cat .head.html - >index.html
+	notmarkdown README.md | notmarkdown-gph | cat .head.gph - >index.gph
+	sed -i "s/VERSION/${VERSION}/g" index.*
