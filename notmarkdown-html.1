@@ -1,0 +1,40 @@
+.Dd $Mdocdate: Jully 12 2021$
+.Dt NOTMARKDOWN-HTML 1
+.Os
+.
+.Sh NAME
+.
+.Nm notmarkdown-html
+.Nd a trivial gopher static wiki generator
+.
+.Sh SYNOPSIS
+.
+.Nm notmarkdown Ar file.md No | Nm notmarkdown-html No Pa >file.html
+.
+.Sh DESCRIPTION
+.
+.Nm
+converts a file formatted in markdown format into html.
+The supported subset of markdown is described in
+.Xr notmarkdown 5
+.
+.Sh EXAMPLES
+.
+.Pp
+To convert an entire website from markdown to html:
+.Bd -literal
+find . -name "*.md" -print -exec sh -euc '
+	notmarkdown "$0" | notmarkdown-html | cat head.html - >>${0%.md}.html
+\&' {} \;
+.Ed
+.
+.Sh SEE ALSO
+.
+.Xr notmarkdown 5 ,
+.Xr notmarkdown-gph 1 ,
+.Xr geomyidae 8
+.
+.Sh AUTHORS
+.
+.An Josuah Demangeon
+.Aq Mt me@josuah.net
