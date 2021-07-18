@@ -2,10 +2,10 @@ NAME = notwiki
 VERSION = 1.0
 DESTDIR =
 PREFIX = /usr/local
-MANPREFIX = ${PREFIX}/share/man
+MANPREFIX = ${PREFIX}/man
 
 BIN = notmarkdown notmarkdown-gph notmarkdown-html notmarkdown-gph notmarkdown-html
-MAN1 = notmarkdown-gph.1 notmarkdown-html.1
+MAN1 = notmarkdown.1
 MAN5 = notmarkdown.5
 
 all: ${BIN}
