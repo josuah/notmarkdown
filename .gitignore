@@ -2,4 +2,4 @@
 *.gz
 *.tgz
 /index.*
-/style.css
+/man/*

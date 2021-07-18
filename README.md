@@ -12,25 +12,21 @@ on `make site`, a build target regenerates the documentation using NotWiki.
 
 How to use it?
 --------------
-The [notwiki-doc(1)][doc] tool will search for `*.md` files in all `$srcdir`
+The [notmarkdown(1)][man] tool will search for `*.md` files in all `$srcdir`
 passed as arguments, and each file `$path/file.$ext` found, gets copied to the
 matching `$dstdir/$path/file.$ext` directory.
 
-[doc]: /man/notwiki-doc.1/
-
 ```
-$ cd /home/me/website-document-root/
-$ notwiki-doc html /srv/www/htdocs/wiki ./wiki
+$ notmarkdown index.md | notmarkdown-html >index.html
+$ notmarkdown index.md | notmarkdown-gph >index.gph
 ```
 
-Here, `/home/me/website-document-root/wiki/introdcution/index.md` would be
-copied to `/srv/www/htdocs/wiki/introduction/index.html`.
+This converts only the content, and adding a header can be done with cat:
 
-The original .md documents are copied along with the source, permitting the
-wiki user to suggest modifications.
-
-The `head.$ext` (`head.html`, `head.gph`) file is added at the top of the
-converted document.
+```
+$ notmarkdown index.md | notmarkdown-html | cat head.html - >index.html
+$ notmarkdown index.md | notmarkdown-gph | cat head.gph - >index.gph
+```
 
 How to get it?
 --------------
@@ -83,4 +79,6 @@ Is NotMarkdown different from Markdown?
 NotMarkdown is Markdown without nesting and HTML. This avoids all edge cases.
 
 For instance, there is a good support for escaping and `\`backtick\`` quoting.
-See [notmarkdown(5)](/man/notmarkdown.5/) for full description.
+See [notmarkdown(5)][man] for full description.
+
+[man]: /notwiki/man/

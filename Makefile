@@ -28,4 +28,7 @@ dist:
 site: dist
 	notmarkdown README.md | notmarkdown-html | cat .head.html - >index.html
 	notmarkdown README.md | notmarkdown-gph | cat .head.gph - >index.gph
-	sed -i "s/VERSION/${VERSION}/g" index.*
+	sed -i 's/VERSION/${VERSION}/g' index.*
+	mkdir -p man
+	mandoc -Thtml -Ofragment *.[0-9] | cat .head.html - >man/index.html
+	mandoc -Tutf8 *.[0-9] | ul -t dumb >man/index.gph
