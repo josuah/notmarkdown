@@ -1,14 +1,14 @@
-NotWiki
+notwiki
 =======
 
-[NotWiki](/notwiki/) is a very simple site generator tool, that
+[Notwiki](/notwiki/) is a very simple site generator tool, that
 support a simple subset of markdown in which this document is formatted:
-NotMarkdown.
+notmarkdown.
 
 It supports publication of the same .md files for both http+html and gopher+gph.
 
 This documentation is maintained in the `./doc/` directory of the git repo, and
-on `make site`, a build target regenerates the documentation using NotWiki.
+on `make site`, a build target regenerates the documentation using notwiki.
 
 How to use it?
 --------------
@@ -47,7 +47,7 @@ formats:
    format for Gopher, through the notmarkdow-gph backend.
 
 To add a new converter backend, add in $PATH a script called notmarkdown-$ext
-that reads NotMarkdown from stdin and sends the targetted format to stdout. For
+that reads notmarkdown from stdin and sends the targetted format to stdout. For
 instance, a notmarkdown-txt backend that print the document unchanged or a
 notmarkdown-pdf aiming paper publication.
 
@@ -74,9 +74,9 @@ For instance if `//doc.example.com/` and `//git.example.com/` point to the same
 server, geomyidae(1) will pick the same `/index.gph` for both. A solution is to
 always use prefixes, like `//doc.example.com/doc/` or `//git.example.com/git/`.
 
-Is NotMarkdown different from Markdown?
+Is notmarkdown different from Markdown?
 ---------------------------------------
-NotMarkdown is Markdown without nesting and HTML. This avoids all edge cases.
+notmarkdown is Markdown without nesting and HTML. This avoids all edge cases.
 
 For instance, there is a good support for escaping and `\`backtick\`` quoting.
 See [notmarkdown(5)][man] for full description.
