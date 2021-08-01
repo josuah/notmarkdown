@@ -31,9 +31,9 @@ The supported subset of markdown is described in
 To convert an entire website from markdown to html and gopher:
 .Bd -literal
 find . -name "*.md" -print -exec sh -euc '
-	notmarkdown "$0" | notmarkdown-html | cat head.html - >>${0%.md}.html
-	notmarkdown "$0" | notmarkdown-gph | cat head.gph - >>${0%.md}.gph
-\&' {} \;
+	notmarkdown "$0" | notmarkdown-html | cat head.html - >${0%.md}.html
+	notmarkdown "$0" | notmarkdown-gph | cat head.gph - >${0%.md}.gph
+\&' {} \e;
 .Ed
 .
 .Pp
