@@ -1,6 +1,5 @@
 NAME = notwiki
 VERSION = 1.0
-DESTDIR =
 PREFIX = /usr/local
 MANPREFIX = ${PREFIX}/man
 
@@ -11,24 +10,24 @@ MAN5 = notmarkdown.5
 all: ${BIN}
 
 clean:
-	rm -f index.* *.tgz
+	rm -fr index.* ${NAME}-${VERSION} *.tgz
 
-install:
+install: ${BIN}
 	mkdir -p ${DESTDIR}${PREFIX}/bin
-	cp -rf ${BIN} ${DESTDIR}${PREFIX}/bin
+	cp -f ${BIN} ${DESTDIR}${PREFIX}/bin
 	mkdir -p ${DESTDIR}${MANPREFIX}/man1
-	cp -rf ${MAN1} ${DESTDIR}${MANPREFIX}/man1
+	cp -f ${MAN1} ${DESTDIR}${MANPREFIX}/man1
 	mkdir -p ${DESTDIR}${MANPREFIX}/man5
-	cp -rf ${MAN5} ${DESTDIR}${MANPREFIX}/man5
+	cp -f ${MAN5} ${DESTDIR}${MANPREFIX}/man5
 
 dist:
-	git archive v${VERSION} --prefix=notmarkdown-${VERSION}/ \
-	| gzip >notmarkdown-${VERSION}.tgz
+	git archive v${VERSION} --prefix=${NAME}-${VERSION}/ \
+	| gzip >${NAME}-${VERSION}.tgz
 
-site: dist
+site:
 	notmarkdown README.md | notmarkdown-html | cat .head.html - >index.html
 	notmarkdown README.md | notmarkdown-gph | cat .head.gph - >index.gph
 	sed -i 's/VERSION/${VERSION}/g' index.*
 	mkdir -p man
-	mandoc -Thtml -Ofragment *.[0-9] | cat .head.html - >man/index.html
-	mandoc -Tutf8 *.[0-9] | ul -t dumb >man/index.gph
+	mandoc -Thtml -Ofragment ${MAN1} ${MAN5} | cat .head.html - >man/index.html
+	mandoc -Tutf8 ${MAN1} ${MAN5} | ul -t dumb >man/index.gph
