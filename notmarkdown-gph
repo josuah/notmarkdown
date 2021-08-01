@@ -13,6 +13,7 @@ BEGIN {
 	EXT["cgi"] = EXT["dcgi"] = EXT["gph"] = "1"
 	EXT["mkv"] = EXT["webm"] = EXT["avi"] = EXT["mp4"] = "9"
 	EXT["mka"] = EXT["opus"] = EXT["wav"] = EXT["mp3"] = "9"
+	EXT["pdf"] = EXT["ps"] = EXT["epub"] = "9"
 }
 
 # match the extension, and default to text/plain
