@@ -47,7 +47,7 @@ function media(link, alt,
 	ext = link
 	sub(/.*\./, "", ext)
 	if ((type = TYPE[ext]) == "" || type == "picture")
-		return sprintf("<img src=\"%s\" alt\"%s\"/>", link, alt)
+		return sprintf("<img src=\"%s\" alt=\"%s\"/>", link, alt)
 	return sprintf("<%s controls> <source src=\"%s\"/> %s </%s>",
 	  type, link, alt, type)
 }
