@@ -1,149 +1,147 @@
-.Dd $Mdocdate: April 18 2020$
-.Dt NOTMARKDOWN 5
-.Os
+.TH NOTMARKDOWN 5
 .
-.Sh NAME
+.SH NAME
 .
-.Nm NotMarkdown
-.Nd a subset of markdown used by notwiki
+.B notmarkdown
+- a subset of markdown used by notwiki
 .
-.Sh DESCRIPTION
+.SH DESCRIPTION
 .
 The
-.Nm
+.B notmarkdown
 format is a subset of the markdown format, with fewer, and unambiguous 
 conversion rules:
 .
-.Ss Block Syntax
+.SS Block Syntax
 .
-.Nm
-uses a first pass of line-based syntax, forming blocks such as paragraphs, list 
+.B Notmarkdown
+is a line-based syntax, with 
 or headings.
 The following syntax occurences provoke switching from the current block to a
 new block:
 .
-.Bl -bullet -width 0n
+.BL -bullet -width 0n
 .
-.It
+.IT
 Empty lines:
-.Bd -literal -offset 6n
+.EX
 Line of the first block.
 
 Line of the second block.
-.Ed
+.EN
 .
-.It
+.IT
 Lines with only
-.Sq =
+.SQ =
 or
-.Sq - ,
+.SQ - ,
 which set the previous block to h1/h2.
-.Bd -literal -offset 6n
+.EX
 This is a setext-style heading
 ==============================
 This is part of the paragraph, there may be a
 blank line above.
-.Ed
+.EN
 .
-.El
+.EL
 .
-.Ss Special Patterns
+.SS Special Patterns
 .
 These patterns are matched at line start, opening a new block:
 .
-.Bl -tag -width 14n
+.BL -tag -width 14n
 .
-.It Ic * No / Ic - No / Ic +
+.IT Ic * No / Ic - No / Ic +
 Unordered lists.
 Any space before, at least one after.
 .
-.It Ic 1. No / Ic 2. No / ...
+.IT Ic 1. No / Ic 2. No / ...
 Ordered lists.
 Any space before, at least one after.
 .
-.It Ic # , Ic ## , Ic ### No ...
+.IT Ic # , Ic ## , Ic ### No ...
 Headings.
 Any space before, at least one after.
 .
-.It Ic [ref]:
+.IT Ic [ref]:
 Link reference. 
 No space before, at least one after.
 .
-.It Ic \et No / Ic ```
+.IT Ic \et No / Ic ```
 Consecutive lines starting with a leading tab \[em] as well as lines after
-.Ic ```
+.IC ```
 alone on a line until the next
-.Ic ```
+.IC ```
 \[em] are literal blocks.
 No conversion is done inside the block, and formatting is preserved.
 .
-.It Ic >
+.IT Ic >
 Quoted text.
 Unlike markdown, it cannot contain list or any other block syntax, but support
 all inline syntax.
 .
-.El
+.EL
 .
-.Ss Inline syntnax
+.SS Inline syntnax
 .
 Within each block, these syntax element are matched:
 .
-.Bl -tag -width 14n
+.BL -tag -width 14n
 .
-.It Ic *text*
+.IT Ic *text*
 Italic text.
 .
-.It Ic **text**
+.IT Ic **text**
 Bold text.
 .
-.It Ic ***text***.
+.IT Ic ***text***.
 Bold italic text.
 .
-.It Ic [desc](link)
+.IT Ic [desc](link)
 Inline link
-.Dq link
+.DQ link
 with description
-.Dq desc .
+.DQ desc .
 .
-.It Ic [desc][ref]
+.IT Ic [desc][ref]
 Link with description
-.Dq desc
+.DQ desc
 refering to
-.Dq ref .
+.DQ ref .
 .
-.It Ic [[descref]]
+.IT Ic [[descref]]
 Link with description
-.Dq descref
+.DQ descref
 refering to
-.Dq descref .
+.DQ descref .
 .
-.It Ic ![alt][ref]
+.IT Ic ![alt][ref]
 Image with alt-text
-.Dq alt
+.DQ alt
 and refernce
-.Dq ref
+.DQ ref
 for source.
 .
-.It Ic ![alt](link)
+.IT Ic ![alt](link)
 Inline image with alt-text
-.Dq alt
+.DQ alt
 and
-.Dq link
+.DQ link
 for source.
 .
-.Sh EXAMPLES
+.SH EXAMPLES
 .
 The source repository comes with a
-.Pa doc/index.md
+.PA doc/index.md
 file that is a complete document example.
 .
-.Sh SEE ALSO
+.SH SEE ALSO
 .
-.Xr notmarkdown-gph 5 ,
-.Xr notmarkdown-html 5 ,
-.Lk http://z0.is/notwiki/ "NotWiki's wiki"
+.IR notmarkdown-gph(5),
+.IR notmarkdown-html(5),
+.IR http://josuah.net/notwiki/
 .
-.Sh AUTHORS
+.SH AUTHORS
 .
-.An Josuah Demangeon
-.Aq Mt me@josuah.net
+.AN Josuah Demangeon
+.AQ Mt me@josuah.net

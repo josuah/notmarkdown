@@ -1,56 +1,55 @@
-.Dd $Mdocdate: Jully 18 2021$
-.Dt NOTMARKDOWN 1
-.Os
+.TH NOTMARKDOWN 1
 .
-.Sh NAME
+.SH NAME
 .
-.Nm notmarkdown-html ,
-.Nm notmarkdown-gph
-.Nd a trivial markdown to gopher and html static page generator
+.B notmarkdown
+- a markdown processor
 .
-.Sh SYNOPSIS
+.SH SYNOPSIS
 .
-.Nm notmarkdown Ar file.md No | Nm notmarkdown-html No Pa >file.html
-.Nm notmarkdown Ar file.md No | Nm notmarkdown-gph No Pa >file.gph
+.B notmarkdown
+format
+.I file.md ...
 .
-.Sh DESCRIPTION
+.SH DESCRIPTION
 .
-.Nm notmarkdown-html
-converts markdown to html and
-.Nm notmarkdown-gph
-converts markdown to
-.Xr geomyidae 8
-.Pa .gph
-format.
-The supported subset of markdown is described in
-.Xr notmarkdown 5
+.B notmarkdown
+converts an input markdown file to any of the supported formats:
+html (only page content),
+gph (the
+.IR geomyidae(8)
+format),
+txt (plain text),
+gmi (gemini index files),
+ms (troff -ms document),
+cat (dump intermediate format).
 .
-.Sh EXAMPLES
+.SH EXAMPLES
 .
-.Pp
-To convert an entire website from markdown to html and gopher:
+.EX
+To convert an entire website from markdown to multiple formats at once:
 .Bd -literal
 find . -name "*.md" -print -exec sh -euc '
-	notmarkdown "$0" | notmarkdown-html | cat head.html - >${0%.md}.html
-	notmarkdown "$0" | notmarkdown-gph | cat head.gph - >${0%.md}.gph
+  notmarkdown "$0" html >${0%.md}.html
+  notmarkdown "$0" gph >${0%.md}.gph
+  notmarkdown "$0" txt >${0%.md}.txt
+  notmarkdown "$0" gmi >${0%.md}.gmi
+  notmarkdown "$0" ms | troff -ms | tr2post | ps2pdf >${0%.md}.pdf
 \&' {} \e;
-.Ed
+.EE
 .
-.Pp
-To map HTTP-style domain name to subdirectories:
+.PP
+To convert subdomains (such as HTTP vHosts) to subdirectories:
 .
-.Bd -literal
+.EX
 $ cd /var/gopher
-$ notmarkdown wiki/index.md | SERVER=wiki.example.com PREFIX=wiki notmarkdown-gph >wiki/index.gph
-$ notmarkdown news/index.md | SERVER=news.example.com PREFIX=news notmarkdown-gph >news/index.gph
-.Ed
+$ export SERVER=wiki.example.com PREFIX=wiki
+$ notmarkdown gph wiki/index.md >wiki/index.gph
+$ export SERVER=news.example.com PREFIX=news
+$ notmarkdown gph news/index.md >news/index.gph
+.EE
 .
-.Sh SEE ALSO
+.SH SEE ALSO
 .
-.Xr notmarkdown 5 ,
-.Xr geomyidae 8
-.
-.Sh AUTHORS
-.
-.An Josuah Demangeon
-.Aq Mt me@josuah.net
+.IR notmarkdown(5),
+.IR geomyidae(8)
