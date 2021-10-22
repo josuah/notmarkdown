@@ -7,10 +7,16 @@ function init()
 	TYPE["mkv"] = TYPE["webm"] = TYPE["avi"] = TYPE["mp4"] = "video"
 	TYPE["mka"] = TYPE["opus"] = TYPE["wav"] = TYPE["mp3"] = "audio"
 	TYPE["flac"] = TYPE["ogg"] = "audio"
-
-	for(i in esc) unesc[i] = htmlescape(esc[i])
-
 	hook("")
+}
+
+function escape(s)
+{
+	gsub("&", "\\&amp;", s)
+	gsub("\"", "\\&quot;", s)
+	gsub("<", "\\&lt;", s)
+	gsub(">", "\\&gt;", s)
+	return s
 }
 
 function getmedia(link, alt,
@@ -26,7 +32,7 @@ function getmedia(link, alt,
 
 function getlink(s, url)
 {
-	return url"\n.FS\n"s"\n.FE\n"
+	return sprintf("<a href=\"%s\">%s</a>", url, s)
 }
 
 function getbold(s)
@@ -34,7 +40,7 @@ function getbold(s)
 	return "<b>"s"</b>"
 }
 
-function getitalics(s)
+function getitalic(s)
 {
 	return "<i>"s"</i>"
 }
@@ -42,15 +48,6 @@ function getitalics(s)
 function getliteral(s)
 {
 	return "<code>"s"</code>"
-}
-
-function htmlescape(s)
-{
-	gsub("&", "\\&amp;", s)
-	gsub("\"", "\\&quot;", s)
-	gsub("<", "\\&lt;", s)
-	gsub(">", "\\&gt;", s)
-	return s
 }
 
 function hook(t)
@@ -72,7 +69,7 @@ function printcode(s)
 {
 	hook("")
 	print "<pre>"
-	print htmlescape(s)
+	print s
 	print "</pre>"
 }
 

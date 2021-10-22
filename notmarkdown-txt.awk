@@ -6,6 +6,11 @@ function init()
 	# nothing
 }
 
+function escape(s)
+{
+	return s
+}
+
 function getliteral(s)
 {
 	return "`"s"`"
@@ -16,9 +21,14 @@ function getbold(s)
 	return "**"s"**"
 }
 
-function getitalics(s)
+function getitalic(s)
 {
 	return "*"s"*"
+}
+
+function getlink(s, url)
+{
+	return "["s"]"
 }
 
 function printlinkline(url, line)

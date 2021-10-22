@@ -13,6 +13,8 @@ BIN = notmarkdown-gph notmarkdown-html notmarkdown-gmi \
 
 all: ${BIN}
 
+${BIN}: notmarkdown.awk
+
 clean:
 	rm -rf ${BIN}
 

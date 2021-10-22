@@ -11,6 +11,11 @@ function init()
 	ext["pdf"] = ext["ps"] = ext["epub"] = "9"
 }
 
+function escape(s)
+{
+	return s
+}
+
 function extension(s,
 	x)
 {
@@ -108,6 +113,11 @@ function printlinkline(link, line,
 	  item["path"], item["host"], item["port"])
 }
 
+function getlink(s, url)
+{
+	# not used
+}
+
 function getliteral(s)
 {
 	return "`"s"`"
@@ -118,7 +128,7 @@ function getbold(s)
 	return "**"s"**"
 }
 
-function getitalics(s)
+function getitalic(s)
 {
 	return "*"s"*"
 }

@@ -3,13 +3,12 @@
 
 function init()
 {
-	for(i in unesc) unesc[i] = troffescape(unesc[i])
-	hook("", "")
+	# nothing
 }
 
-function troffescape(s)
+function escape(s)
 {
-	gsub("\"", "\\\\e", s)
+	gsub(/\\/, "\\e", s)
 	return s
 }
 
@@ -23,7 +22,7 @@ function getbold(s)
 	return s
 }
 
-function getitalics(s)
+function getitalic(s)
 {
 	return s
 }
@@ -48,9 +47,9 @@ function printquote(s)
 
 function printcode(s)
 {
-	hook("ED")
-	print ".BD"
-	print troffescape(s)
+	hook("DE")
+	print ".DS"
+	print s
 }
 
 function printulist(s)
@@ -70,7 +69,7 @@ function printolist(s)
 function printhead(s, lv)
 {
 	hook("")
-	print ".SH "lv
+	print ".NH "lv
 	print s
 }
 

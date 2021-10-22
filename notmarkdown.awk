@@ -1,24 +1,6 @@
 
 ## notmarkdown.awk ## parser backend
 
-function escape(s,
-	i)
-{
-	gsub(/\\/, "\\\\e", s)
-	for(i in esc)
-		gsub("\\\\["esc[i]"]", "\\\\"i, s)
-	return s
-}
-
-function unescape(s,
-	i)
-{
-	for(i in esc)
-		gsub("\\\\"i, esc[i], s)
-	gsub(/\\e/, "\\\\", s)
-	return s
-}
-
 function dolink(t, beg, len, ref, link, text,
 	i)
 {
@@ -28,8 +10,8 @@ function dolink(t, beg, len, ref, link, text,
 		ref = "ref#"i
 	}
 	gsub(" ", "%20", link)
-	linktxt[ref] = text
-	linkurl[ref] = link
+	linktxt[ref] = escape(text)
+	linkurl[ref] = escape(link)
 	t["head"] = t["head"] substr(t["tail"], 1, beg - 1) "[" ref "]"
 	t["tail"] = substr(t["tail"], beg + len)
 }
@@ -209,10 +191,10 @@ function printline(prefix, s, len,
 	if(n == 1)
 		printlinkline(linkurl[ref], prefix line)
 	if(n != 1)
-		print unescape(prefix line)
+		print prefix line
 	if(n >= 2)
 		for(i in links)
-			printlinkline(linkurl[i], " * " unescape(linktxt[i]))
+			printlinkline(linkurl[i], " * " linktxt[i])
 	return s
 }
 
@@ -223,13 +205,38 @@ function printblock(prefix1, prefix2, s,
 		s = printline(prefix, s, 80)
 }
 
+function backslash(s,
+	i)
+{
+	gsub(/\\\\/, "\\e", s)
+	for(i in bs)
+		gsub("\\\\["bs[i]"]", "\\"i, s)
+	return s
+}
+
+function debackslash(s,
+	i)
+{
+	for(i in dbs)
+		gsub("\\\\"i, dbs[i], s)
+	gsub(/\\e/, "\\", s)
+	return s
+}
+
+function fatal(msg)
+{
+	print "error: "msg
+	exit(1)
+}
+
 BEGIN{
 	new = 1
 
-	esc["S"] = "["; esc["s"] = "]";	esc["w"] = "*"; esc["d"] = "\""
-	esc["R"] = "("; esc["r"] = ")"; esc["u"] = "_"
-	esc["A"] = "<"; esc["a"] = ">"; esc["q"] = "`"
-	for(i in esc) unesc[i] = esc[i]
+	bs["S"] = "["; bs["s"] = "]"; bs["w"] = "*"; bs["d"] = "\""
+	bs["R"] = "("; bs["r"] = ")"; bs["u"] = "_"; bs["q"] = "`"
+	bs["A"] = "<"; bs["a"] = ">"
+
+	for(i in bs) dbs[i] = escape(bs[i])
 
 	reg["#u"] = "^[-+*] +"
 	reg["#o"] = "^[0-9]+\\. +"
@@ -252,7 +259,7 @@ sub("^> +", ""){
 	new = 1
 	block[++N] = "#c"
 	while(sub("^    ", "\t") || /^\t/){
-		block[N] = block[N] "\n" substr($0, 2) # skip "\t"
+		block[N] = block[N] substr($0, 2) "\n"
 		getline
 	}
 	sub(/\n$/, "", block[N])
@@ -295,7 +302,7 @@ match($0, /^\[[^] ]+\]:/){
 	sub(" *$", "")
 	for(i in reg){
 		if(sub(reg[i], i, $0) > 0){
-			new = 1
+			new = 0
 			block[++N] = $0
 			next
 		}
@@ -317,29 +324,29 @@ END{
 	init()
 	for(i = 1; i in block; i++){
 		s = block[i]
-		if(sub(/^#c/, "", s)){ printcode(s); continue }
-		s = escape(s)
+		if(sub(/^#c/, "", s)){ printcode(escape(s)); continue }
+		s = backslash(s)
 		s = linkdouble(s)
 		s = linksimple(s)
 		s = linkinline(s)
 		s = linkliteral(s)
+		s = escape(s)
 		s = convertlink(s)
 		s = convertbold(s)
 		s = convertitalic(s)
 		s = convertmedia(s)
 		s = convertquoted(s)
-		s = unescape(s)
+		s = debackslash(s)
 		if(sub(/^#1/, "", s)){ printhead(s, 1); continue }
 		if(sub(/^#2/, "", s)){ printhead(s, 2); continue }
 		if(sub(/^#3/, "", s)){ printhead(s, 3); continue }
 		if(sub(/^#4/, "", s)){ printhead(s, 4); continue }
 		if(sub(/^#5/, "", s)){ printhead(s, 5); continue }
 		if(sub(/^#6/, "", s)){ printhead(s, 6); continue }
-		if(sub(/^#o/, "", s)){ printslist(s); continue }
+		if(sub(/^#o/, "", s)){ printolist(s); continue }
 		if(sub(/^#u/, "", s)){ printulist(s); continue }
 		if(sub(/^#q/, "", s)){ printquote(s); continue }
 		if(sub(/^#p/, "", s)){ printpar(s); continue }
-		print "error: unknown block type: "s
-		exit(1)
+		fatal("unknown block type: "s)
 	}
 }

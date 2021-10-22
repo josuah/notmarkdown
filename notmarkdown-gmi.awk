@@ -6,14 +6,29 @@ function init()
 	# nothing
 }
 
+function escape(s)
+{
+	return s
+}
+
 function getliteral(s)
 {
 	return "`"s"`"
 }
 
+function getitalic(s)
+{
+	return "*"s"*"
+}
+
+function getlink(s, url)
+{
+	# not used
+}
+
 function printlink(link, descr)
 {
-	print unescape(sprintf("=> %s %s", link, line))
+	print "=> "link" "line
 }
 
 function printhead(s, lv,
