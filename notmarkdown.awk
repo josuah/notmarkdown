@@ -194,7 +194,7 @@ function printline(prefix, s, len,
 		print prefix line
 	if(n >= 2)
 		for(i in links)
-			printlinkline(linkurl[i], " * " linktxt[i])
+			printlinkline(linkurl[i], " • " linktxt[i])
 	return s
 }
 

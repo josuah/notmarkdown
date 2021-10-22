@@ -19,17 +19,17 @@ function getlink(s, url)
 
 function getbold(s)
 {
-	return s
+	return "\\fB"s"\\fR"
 }
 
 function getitalic(s)
 {
-	return s
+	return "\\fI"s"\\fR"
 }
 
 function getliteral(s)
 {
-	return s
+	return "\\fC"s"\\fR"
 }
 
 function hook(m)
@@ -55,14 +55,14 @@ function printcode(s)
 function printulist(s)
 {
 	hook("")
-	print ".IP -"
+	print ".IP •"
 	print s
 }
 
 function printolist(s)
 {
 	hook("")
-	print ".IP 0."
+	print ".IP •"
 	print s
 }
 
