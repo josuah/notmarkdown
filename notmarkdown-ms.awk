@@ -12,9 +12,9 @@ function escape(s)
 	return s
 }
 
-function getlink(s, url)
+function getlink(ref)
 {
-	return s"\n" ".FS\n" url"\n" ".FE\n"
+	return linktxt[ref]"\n" ".FS\n" linkurl[ref]"\n" ".FE\n"
 }
 
 function getbold(s)

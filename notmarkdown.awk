@@ -64,7 +64,7 @@ function convertlink(s,
 	while(match(tail, /\[[0-9]+\]/)){
 		head = head substr(tail, 1, RSTART-1)
 		ref = substr(tail, RSTART+1, RLENGTH-2)
-		head = head getlink(linktxt[ref], linkurl[ref])
+		head = head getlink(ref)f
 		tail = substr(tail, RSTART+RLENGTH)
 	}
 	return head tail
@@ -127,46 +127,41 @@ function convertitalic(s,
 	return head tail
 }
 
-function fold(s, len,
-	head, tail, i)
+function getfold(line, len,
+	head, i)
 {
-	head = substr(s, 1, len+1)
-	sub(" *$", "", head)
-	if (length(head) == len+1)
+	head = substr(line, 1, len+1)
+	if(length(line) >= len)
 		sub(" *[^ ]*$", "", head)
-	if (length(head) == 0) {
-		tail = substr(s, len+1)
-		head = substr(s, 1, len)
-		if ((i = index(tail, " ")) == 0)
-			return s
-		return head substr(tail, 1, i)
-	}
-	return head
+	if(length(head) > 0)
+		return head
+	i = index(line, " ")
+	return (i > 0) ? substr(line, 1, i) : line
 }
 
 function printline(prefix, s, len,
-	line, fld, ref, lnk, n, i)
+	head, tail, fold, ref, lnk, n, i)
 {
 	len -= length(pref)
-
-	n = 0
-	while(match(fold(s, len - length(line)), /\[[0-9]+\]/)){
-		ref = substr(str, RSTART+1, RLENGTH-2)
+	tail = s
+	for(;;){
+		fold = getfold(tail, len - length(head))
+		if(!match(fold, /\[[0-9]+\]/))
+			break
+		ref = substr(tail, RSTART+1, RLENGTH-2)
 		lnk[n++] = ref
-		line = line substr(str, 1, RSTART-1) getlink(linktxt[ref], "")
-		s = substr(s, RSTART+RLENGTH)
+		head = head substr(tail, 1, RSTART-1) linktxt[ref]
+		tail = substr(tail, RSTART+RLENGTH)
 	}
-	fld = fold(s, len - length(line))
-	line = line fld
-	s = substr(s, length(fld)+2)
-	if(n == 1)
-		printlink(linkurl[ref], prefix line)
-	if(n != 1)
-		print prefix line
-	if(n >= 2)
-		for(i = 0; i < n; i++)
-			printlink(linkurl[lnk[i]], " • "linktxt[lnk[i]])
-	return s
+	fold = getfold(tail, len - length(head))
+	head = head fold
+	tail = substr(tail, length(fold) + 2)
+
+	if(n == 1) printlink(linkurl[ref], prefix head)
+	if(n != 1) print prefix head
+	if(n >= 2) for(i=0; i<n; i++)
+		printlink(linkurl[lnk[i]], " • "linktxt[lnk[i]])
+	return tail
 }
 
 function printblock(prefix1, prefix2, s,

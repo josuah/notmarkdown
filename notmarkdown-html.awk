@@ -30,9 +30,9 @@ function getmedia(link, alt,
 	  type, link, alt, type)
 }
 
-function getlink(s, url)
+function getlink(ref)
 {
-	return sprintf("<a href=\"%s\">%s</a>", url, s)
+	return sprintf("<a href=\"%s\">%s</a>", linkurl[ref], linktxt[ref])
 }
 
 function getbold(s)

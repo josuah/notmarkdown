@@ -26,14 +26,15 @@ function getitalic(s)
 	return "*"s"*"
 }
 
-function getlink(s, url)
+function getlink(ref)
 {
-	return s" {"url"}"
+	linktxt[ref] = "{"linktxt[ref]"}"
+	return "["ref"]"
 }
 
 function printlink(url, line)
 {
-	print "=> "url" "line
+	print line
 }
 
 function blankline(after)

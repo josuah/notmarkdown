@@ -70,41 +70,41 @@ function expand(link,
 		link["path"] = "/" ENVIRON["PREFIX"] link["path"]
 }
 
-function parselink(s, link)
+function parselink(url, link)
 {
 	link["host"] = "server"
 	link["port"] = "port"
-	link["desc"] = s
+	link["desc"] = url
 
-	if (s ~ "^//") {
-		parseuri(substr(s, 3), link)
+	if (url ~ "^//") {
+		parseuri(substr(url, 3), link)
 		link["type"] = extension(link["path"])
 		expand(link)
 		return
 	}
 
-	if (s ~ "^/") {
-		link["path"] = s
+	if (url ~ "^/") {
+		link["path"] = url
 		link["type"] = extension(link["path"])
 		expand(link)
 		return
 	}
 
-	parseuri(s, link)
+	parseuri(url, link)
 	if (link["proto"] == "telnet") {
 		link["type"] = "8"
 	} else if (link["proto"] == "gopher") {
 		striptype(link)
 	} else {
 		link["type"] = "h"
-		link["path"] = "URL:" s
+		link["path"] = "URL:" url
 	}
 }
 
-function printlink(link, line,
-	item)
+function printlink(url, line,
+	item, i)
 {
-	parselink(link, item)
+	parselink(url, item)
 	item["line"] = line
 	for (i in item)
 		gsub(/\|/, "\\|", item[i])
@@ -113,9 +113,10 @@ function printlink(link, line,
 	  item["path"], item["host"], item["port"])
 }
 
-function getlink(s, url)
+function getlink(ref)
 {
-	# not used
+	linktxt[ref] = "{"linktxt[ref]"}"
+	return "["ref"]"
 }
 
 function getliteral(s)

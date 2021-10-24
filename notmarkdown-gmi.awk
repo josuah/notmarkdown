@@ -26,14 +26,14 @@ function getitalic(s)
 	return "*"s"*"
 }
 
-function getlink(s, url)
+function getlink(ref)
 {
-	# not used
+	return "["ref"]"
 }
 
-function printlink(link, descr)
+function printlink(line, url)
 {
-	print "=> "link" "line
+	print "=> "url" "line
 }
 
 function printhead(s, lv,
