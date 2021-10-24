@@ -1,19 +1,13 @@
 
 ## notmarkdown.awk ## parser backend
 
-function dolink(t, beg, len, ref, link, text,
-	i)
+function dolink(t, beg, len, text, link)
 {
-	if(ref == ""){
-		for(i = 1; "ref#"i in linkurl; i++)
-			continue
-		ref = "ref#"i
-	}
-	gsub(" ", "%20", link)
-	linktxt[ref] = escape(text)
-	linkurl[ref] = escape(link)
-	t["head"] = t["head"] substr(t["tail"], 1, beg - 1) "[" ref "]"
-	t["tail"] = substr(t["tail"], beg + len)
+	linknum++
+	linktxt[linknum] = escape(text)
+	linkurl[linknum] = escape(link)
+	t["head"] = t["head"] substr(t["tail"], 1, beg-1)"["linknum"]"
+	t["tail"] = substr(t["tail"], beg+len)
 }
 
 # <txtref>
@@ -22,11 +16,10 @@ function linkliteral(s,
 	t)
 {
 	t["tail"] = s
-	t["head"] = ""
 	while(match(t["tail"], /<[^ >]+>/)){
-		dolink(t, RSTART, RLENGTH, "",
-		  substr(t["tail"], RSTART + 1, RLENGTH - 2),
-		  substr(t["tail"], RSTART + 1, RLENGTH - 2))
+		dolink(t, RSTART, RLENGTH,
+		  substr(t["tail"], RSTART+1, RLENGTH-2),
+		  substr(t["tail"], RSTART+1, RLENGTH-2))
 	}
 	return t["head"] t["tail"]
 }
@@ -37,13 +30,12 @@ function linkreference(s,
 	t, i, ref)
 {
 	t["tail"] = s
-	t["head"] = ""
 	while(match(t["tail"], /\[[^\]]+\]\[[^ \]]+\]/)){
 		i = index(substr(t["tail"], RSTART, RLENGTH), "][")
 		ref = substr(t["tail"], RSTART+i+1, RLENGTH-i-2)
-		dolink(t, RSTART, RLENGTH, ref,
-		  linkref[ref],
-		  substr(t["tail"], RSTART+1, i-2))
+		dolink(t, RSTART, RLENGTH,
+		  substr(t["tail"], RSTART+1, i-RSTART-1),
+		  substr(t["tail"], i+2, RSTART+RLENGTH-i-3))
 	}
 	return t["head"] t["tail"]
 }
@@ -54,14 +46,43 @@ function linkinline(s,
 	t, i)
 {
 	t["tail"] = s
-	t["head"] = ""
 	while(match(t["tail"], /\[[^\]]+\]\([^ \)]+\)/)){
 		i = index(t["tail"], "](")
-		dolink(t, RSTART, RLENGTH, "",
-		  substr(t["tail"], i+2, RLENGTH+RSTART-i-3),
-		  substr(t["tail"], RSTART+1, i-RSTART-1))
+		dolink(t, RSTART, RLENGTH,
+		  substr(t["tail"], RSTART+1, i-RSTART-1),
+		  substr(t["tail"], i+2, RSTART+RLENGTH-i-3))
 	}
 	return t["head"] t["tail"]
+}
+
+# [1] after conversion by link*()
+
+function convertlink(s,
+	head, tail, ref)
+{
+	tail = s
+	while(match(tail, /\[[0-9]+\]/)){
+		head = head substr(tail, 1, RSTART-1)
+		ref = substr(tail, RSTART+1, RLENGTH-2)
+		head = head getlink(linktxt[ref], linkurl[ref])
+		tail = substr(tail, RSTART+RLENGTH)
+	}
+	return head tail
+}
+
+# ![1] after conversion by links*()
+
+function convertmedia(s,
+	head, tail, ref)
+{
+	tail = s
+	while (match(tail, /!\[[0-9]+\]/)) {
+		head = head substr(tail, 1, RSTART-1)
+		ref = substr(tail, RSTART+2, RLENGTH-3)
+		head = head getmedia(linkurl[ref], linktxt[ref])
+		tail = substr(tail, RSTART+RLENGTH)
+	}
+	return head tail
 }
 
 # `quoted`
@@ -70,27 +91,10 @@ function convertquoted(s,
 	head, tail)
 {
 	tail = s
-	head = ""
 	while(match(tail, /`[^`]*`/)){
 		head = head substr(tail, 1, RSTART-1)
 		head = head getliteral(substr(tail, RSTART+1, RLENGTH-2))
 		tail = substr(tail, RSTART+RLENGTH)
-	}
-	return head tail
-}
-
-# [ref] after conversion by link*()
-
-function convertlink(s,
-	head, tail, ref)
-{
-	head = ""
-	tail = s
-	while(match(tail, /\[[^ \]]+\]/)){
-		head = head substr(tail, 1, RSTART - 1)
-		ref = tolower(substr(tail, RSTART + 1, RLENGTH - 2))
-		head = head getlink(linktxt[ref], linkurl[ref])
-		tail = substr(tail, RSTART + RLENGTH)
 	}
 	return head tail
 }
@@ -100,7 +104,6 @@ function convertlink(s,
 function convertbold(s,
 	head, tail)
 {
-	head = ""
 	tail = s
 	while(match(tail, "[*][*][^ *][^*]*[^ *][*][*]")){
 		head = head substr(tail, 1, RSTART-1)
@@ -115,7 +118,6 @@ function convertbold(s,
 function convertitalic(s,
 	head, tail)
 {
-	head = ""
 	tail = s
 	while(match(tail, "[*][^ *][^*]*[^ *][*]")){
 		head = head substr(tail, 1, RSTART-1)
@@ -125,31 +127,15 @@ function convertitalic(s,
 	return head tail
 }
 
-# ![ref] after conversion by links*()
-
-function convertmedia(s,
-	head, tail, ref)
-{
-	head = ""
-	tail = s
-	while (match(tail, /!\[[^ \]]+\]/)) {
-		head = head substr(tail, 1, RSTART - 1)
-		ref = tolower(substr(tail, RSTART + 2, RLENGTH - 3))
-		head = head getmedia(linkurl[ref], linktxt[ref])
-		tail = substr(tail, RSTART + RLENGTH)
-	}
-	return head tail
-}
-
 function fold(s, len,
 	head, tail, i)
 {
-	head = substr(s, 1, len + 1)
+	head = substr(s, 1, len+1)
 	sub(" *$", "", head)
-	if (length(head) == len + 1)
+	if (length(head) == len+1)
 		sub(" *[^ ]*$", "", head)
 	if (length(head) == 0) {
-		tail = substr(s, len + 1)
+		tail = substr(s, len+1)
 		head = substr(s, 1, len)
 		if ((i = index(tail, " ")) == 0)
 			return s
@@ -159,26 +145,27 @@ function fold(s, len,
 }
 
 function printline(prefix, s, len,
-	line, fld, ref, links, n, i)
+	line, fld, ref, lnk, n, i)
 {
 	len -= length(pref)
 
 	n = 0
-	while(match(fold(s, len - length(line)), /\[[^ \]]+\]/)){
-		n += (links[ref = substr(str, RSTART + 1, RLENGTH - 2)] = 1)
-		line = line substr(str, 1, RSTART - 1) "[" linktxt[ref] "]"
-		s = substr(s, RSTART + RLENGTH)
+	while(match(fold(s, len - length(line)), /\[[0-9]+\]/)){
+		ref = substr(str, RSTART+1, RLENGTH-2)
+		lnk[n++] = ref
+		line = line substr(str, 1, RSTART-1) getlink(linktxt[ref], "")
+		s = substr(s, RSTART+RLENGTH)
 	}
 	fld = fold(s, len - length(line))
 	line = line fld
-	s = substr(s, length(fld) + 2)
+	s = substr(s, length(fld)+2)
 	if(n == 1)
-		printlinkline(linkurl[ref], prefix line)
+		printlink(linkurl[ref], prefix line)
 	if(n != 1)
 		print prefix line
 	if(n >= 2)
-		for(i in links)
-			printlinkline(linkurl[i], " • " linktxt[i])
+		for(i = 0; i < n; i++)
+			printlink(linkurl[lnk[i]], " • "linktxt[lnk[i]])
 	return s
 }
 
@@ -234,9 +221,9 @@ BEGIN{
 
 sub("^> +", ""){
 	new = 1
-	block[++N] = "#q" $0
+	block[++N] = "#q"$0
 	while(getline && sub("^> +", "", $0))
-		block[N] = block[N] " " $0
+		block[N] = block[N]" "$0
 }
 
 /^(\t|    )/{
@@ -260,19 +247,19 @@ sub("^> +", ""){
 
 !new && /^=+$/{
 	new = 1
-	block[N] = "#1" substr(block[N], 3)
+	block[N] = "#1"substr(block[N], 3)
 	next
 }
 
 !new && /^-+$/{
 	new = 1
-	block[N] = "#2" substr(block[N], 3)
+	block[N] = "#2"substr(block[N], 3)
 	next
 }
 
 match($0, /^\[[^\] ]+\]:/){
 	new = 1
-	linkref[tolower(substr($0, RSTART + 1, RLENGTH - 3))] = $2
+	linkref[tolower(substr($0, RSTART+1, RLENGTH-3))] = $2
 	next
 }
 
@@ -295,12 +282,12 @@ match($0, /^\[[^\] ]+\]:/){
 
 new{
 	new = 0
-	block[++N] = "#p" $0
+	block[++N] = "#p"$0
 	next
 }
 
 !new{
-	block[N] = block[N] " " $0
+	block[N] = block[N]" "$0
 	next
 }
 
@@ -315,9 +302,9 @@ END{
 		s = linkinline(s)
 		s = escape(s)
 		s = convertlink(s)
+		s = convertmedia(s)
 		s = convertbold(s)
 		s = convertitalic(s)
-		s = convertmedia(s)
 		s = convertquoted(s)
 		s = debackslash(s)
 		if(sub(/^#1/, "", s)){ printhead(s, 1); continue }

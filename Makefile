@@ -15,7 +15,7 @@ ${BIN}: ${BIN:=.awk} notmarkdown.awk
 	chmod +x $@
 
 clean:
-	rm ${BIN}
+	rm -f ${BIN}
 
 install: ${BIN}
 	mkdir -p ${DESTDIR}${PREFIX}/bin

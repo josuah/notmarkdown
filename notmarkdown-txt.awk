@@ -28,12 +28,12 @@ function getitalic(s)
 
 function getlink(s, url)
 {
-	return "["s"]"
+	return s" {"url"}"
 }
 
-function printlinkline(url, line)
+function printlink(url, line)
 {
-	print line
+	print "=> "url" "line
 }
 
 function blankline(after)

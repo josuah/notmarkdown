@@ -101,7 +101,7 @@ function parselink(s, link)
 	}
 }
 
-function printlinkline(link, line,
+function printlink(link, line,
 	item)
 {
 	parselink(link, item)
