@@ -1,12 +1,7 @@
-name = notwiki
 v = 1.0
 
 bin = notmarkdown-gph notmarkdown-html notmarkdown-gmi \
   notmarkdown-txt notmarkdown-ms
-
-notmarkdown-%: notmarkdown-%.awk notmarkdown.awk
-	echo '#!/bin/awk -f' | cat /fd/0 $prereq >$target
-	chmod +x $target
 
 all:V: $bin
 
@@ -18,7 +13,11 @@ install:V: $bin
 	cp notmarkdown.man /sys/man/1/notmarkdown
 
 dist:V:
-	mkdir -p $name-$v
-	cp *file *.awk *.md notmarkdown.[0-9] $name-$v
-	tar c $name-$v | gzip >$name-$v.tgz
-	rm -r $name-$v
+	mkdir -p notmarkdown-$v
+	cp *file *.awk *.md *.man notmarkdown-$v
+	tar c notmarkdown-$v | gzip >notmarkdown-$v.tgz
+	rm -r notmarkdown-$v
+
+notmarkdown-%: notmarkdown-%.awk notmarkdown.awk
+	echo '#!/bin/awk -f' | cat /fd/0 $prereq >$target
+	chmod +x $target

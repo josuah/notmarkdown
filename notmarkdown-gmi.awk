@@ -13,7 +13,12 @@ function escape(s)
 
 function getliteral(s)
 {
-	return "`"s"`"
+	return "'"s"'"
+}
+
+function getbold(s)
+{
+	return "*"s"*"
 }
 
 function getitalic(s)
@@ -35,7 +40,7 @@ function printhead(s, lv,
 	i)
 {
 	for(i = 0; i < lv; i++) printf "#"
-	print " " s
+	print " "s
 }
 
 function printcode(s)

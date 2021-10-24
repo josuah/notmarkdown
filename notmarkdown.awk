@@ -23,7 +23,7 @@ function linkliteral(s,
 {
 	t["tail"] = s
 	t["head"] = ""
-	while(match(t["tail"], /<[^> ]+>/)){
+	while(match(t["tail"], /<[^ >]+>/)){
 		dolink(t, RSTART, RLENGTH, "",
 		  substr(t["tail"], RSTART + 1, RLENGTH - 2),
 		  substr(t["tail"], RSTART + 1, RLENGTH - 2))
@@ -33,12 +33,12 @@ function linkliteral(s,
 
 # [text][ref]
 
-function linksimple(s,
+function linkreference(s,
 	t, i, ref)
 {
 	t["tail"] = s
 	t["head"] = ""
-	while(match(t["tail"], /\[[^]]+\]\[[^] ]+\]/)){
+	while(match(t["tail"], /\[[^\]]+\]\[[^ \]]+\]/)){
 		i = index(substr(t["tail"], RSTART, RLENGTH), "][")
 		ref = substr(t["tail"], RSTART+i+1, RLENGTH-i-2)
 		dolink(t, RSTART, RLENGTH, ref,
@@ -55,7 +55,7 @@ function linkinline(s,
 {
 	t["tail"] = s
 	t["head"] = ""
-	while(match(t["tail"], /\[[^]]+\]\([^) ]+\)/)){
+	while(match(t["tail"], /\[[^\]]+\]\([^ \)]+\)/)){
 		i = index(t["tail"], "](")
 		dolink(t, RSTART, RLENGTH, "",
 		  substr(t["tail"], i+2, RLENGTH+RSTART-i-3),
@@ -79,14 +79,14 @@ function convertquoted(s,
 	return head tail
 }
 
-# [ref#]  after conversion by links*()
+# [ref] after conversion by link*()
 
 function convertlink(s,
 	head, tail, ref)
 {
 	head = ""
 	tail = s
-	while(match(tail, /\[[^] ]+\]/)){
+	while(match(tail, /\[[^ \]]+\]/)){
 		head = head substr(tail, 1, RSTART - 1)
 		ref = tolower(substr(tail, RSTART + 1, RLENGTH - 2))
 		head = head getlink(linktxt[ref], linkurl[ref])
@@ -132,7 +132,7 @@ function convertmedia(s,
 {
 	head = ""
 	tail = s
-	while (match(tail, /!\[[^] ]+\]/)) {
+	while (match(tail, /!\[[^ \]]+\]/)) {
 		head = head substr(tail, 1, RSTART - 1)
 		ref = tolower(substr(tail, RSTART + 2, RLENGTH - 3))
 		head = head getmedia(linkurl[ref], linktxt[ref])
@@ -164,7 +164,7 @@ function printline(prefix, s, len,
 	len -= length(pref)
 
 	n = 0
-	while(match(fold(s, len - length(line)), /\[[^] ]+\]/)){
+	while(match(fold(s, len - length(line)), /\[[^ \]]+\]/)){
 		n += (links[ref = substr(str, RSTART + 1, RLENGTH - 2)] = 1)
 		line = line substr(str, 1, RSTART - 1) "[" linktxt[ref] "]"
 		s = substr(s, RSTART + RLENGTH)
@@ -270,7 +270,7 @@ sub("^> +", ""){
 	next
 }
 
-match($0, /^\[[^] ]+\]:/){
+match($0, /^\[[^\] ]+\]:/){
 	new = 1
 	linkref[tolower(substr($0, RSTART + 1, RLENGTH - 3))] = $2
 	next
@@ -310,9 +310,9 @@ END{
 		s = block[i]
 		if(sub(/^#c/, "", s)){ printcode(escape(s)); continue }
 		s = backslash(s)
-		s = linksimple(s)
-		s = linkinline(s)
 		s = linkliteral(s)
+		s = linkreference(s)
+		s = linkinline(s)
 		s = escape(s)
 		s = convertlink(s)
 		s = convertbold(s)

@@ -1,9 +1,12 @@
-NAME = notwiki
 PREFIX = /usr/local
 MANPREFIX = ${PREFIX}/man
 
 BIN = notmarkdown-gph notmarkdown-html notmarkdown-gmi \
   notmarkdown-txt notmarkdown-ms
+
+all: ${BIN}
+
+${BIN}: ${BIN:=.awk} notmarkdown.awk
 
 .SUFFIXES: .awk
 
@@ -11,12 +14,8 @@ BIN = notmarkdown-gph notmarkdown-html notmarkdown-gmi \
 	echo '#!/usr/bin/awk -f' | cat - $< notmarkdown.awk >$@
 	chmod +x $@
 
-all: ${BIN}
-
-${BIN}: notmarkdown.awk
-
 clean:
-	rm -rf ${BIN}
+	rm ${BIN}
 
 install: ${BIN}
 	mkdir -p ${DESTDIR}${PREFIX}/bin
