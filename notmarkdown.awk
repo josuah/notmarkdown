@@ -164,11 +164,11 @@ function printline(prefix, s, len,
 	return tail
 }
 
-function printblock(prefix1, prefix2, s,
+function printblock(prefix1, prefix2, s, len,
 	prefix)
 {
 	for(prefix = prefix1; length(s) > 0; prefix = prefix2)
-		s = printline(prefix, s, 80)
+		s = printline(prefix, s, len)
 }
 
 function backslash(s,
@@ -296,8 +296,8 @@ END{
 		s = linkrefer(s)
 		s = linkinline(s)
 		s = escape(s)
-		s = convertlink(s)
 		s = convertmedia(s)
+		s = convertlink(s)
 		s = convertbold(s)
 		s = convertitalic(s)
 		s = convertquoted(s)

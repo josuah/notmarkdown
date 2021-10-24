@@ -57,12 +57,12 @@ function printcode(s)
 
 function printulist(s)
 {
-	print "•", s
+	print "*", s
 }
 
 function printolist(s)
 {
-	print "#.", s
+	print "*", s
 }
 
 function printquote(s)
@@ -72,5 +72,5 @@ function printquote(s)
 
 function printpar(s)
 {
-	printline(s)
+	printblock(s, "", "", 99999)
 }

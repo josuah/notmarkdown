@@ -24,15 +24,18 @@ function getlink(ref)
 	return sprintf("<a href=\"%s\">%s</a>", linkurl[ref], linktxt[ref])
 }
 
-function getmedia(link, alt,
-	ext, type)
+function getmedia(ref,
+	ext, src, alt, type)
 {
-	ext = link
+	ext = linkurl[ref]
+	src = linkurl[ref]
+	alt = linktxt[ref]
 	sub(/.*\./, "", ext)
-	if ((type = TYPE[ext]) == "" || type == "picture")
-		return sprintf("<img src=\"%s\" alt=\"%s\"/>", link, alt)
+	type = TYPE[ext]
+	if (type == "" || type == "picture")
+		return sprintf("<img src=\"%s\" alt=\"%s\"/>", src, alt)
 	return sprintf("<%s controls> <source src=\"%s\"/> %s </%s>",
-	  type, link, alt, type)
+	  type, src, alt, type)
 }
 
 function getbold(s)
