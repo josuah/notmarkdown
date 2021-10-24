@@ -28,7 +28,13 @@ function getitalic(s)
 
 function getlink(ref)
 {
+	linktxt[ref] = "{"linktxt[ref]"}"
 	return "["ref"]"
+}
+
+function getmedia(ref)
+{
+	return getlink(ref)
 }
 
 function printlink(line, url)

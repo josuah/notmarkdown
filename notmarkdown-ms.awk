@@ -17,6 +17,11 @@ function getlink(ref)
 	return linktxt[ref]"\n" ".FS\n" linkurl[ref]"\n" ".FE\n"
 }
 
+function getmedia(ref)
+{
+	return getlink(ref)
+}
+
 function getbold(s)
 {
 	return "\\fB"s"\\fR"

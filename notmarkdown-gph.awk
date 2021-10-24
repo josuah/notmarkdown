@@ -108,15 +108,19 @@ function printlink(url, line,
 	item["line"] = line
 	for (i in item)
 		gsub(/\|/, "\\|", item[i])
-
-	print sprintf("[%s|%s|%s|%s|%s]", item["type"], item["line"],
-	  item["path"], item["host"], item["port"])
+	printf "[%s|%s|%s|%s|%s]\n",
+	  item["type"], item["line"], item["path"], item["host"], item["port"]
 }
 
 function getlink(ref)
 {
 	linktxt[ref] = "{"linktxt[ref]"}"
 	return "["ref"]"
+}
+
+function getmedia(ref)
+{
+	return getlink(ref)
 }
 
 function getliteral(s)

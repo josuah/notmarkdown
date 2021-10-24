@@ -19,6 +19,11 @@ function escape(s)
 	return s
 }
 
+function getlink(ref)
+{
+	return sprintf("<a href=\"%s\">%s</a>", linkurl[ref], linktxt[ref])
+}
+
 function getmedia(link, alt,
 	ext, type)
 {
@@ -28,11 +33,6 @@ function getmedia(link, alt,
 		return sprintf("<img src=\"%s\" alt=\"%s\"/>", link, alt)
 	return sprintf("<%s controls> <source src=\"%s\"/> %s </%s>",
 	  type, link, alt, type)
-}
-
-function getlink(ref)
-{
-	return sprintf("<a href=\"%s\">%s</a>", linkurl[ref], linktxt[ref])
 }
 
 function getbold(s)

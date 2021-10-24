@@ -32,6 +32,11 @@ function getlink(ref)
 	return "["ref"]"
 }
 
+function getmedia(ref)
+{
+	return getlink(ref)
+}
+
 function printlink(url, line)
 {
 	print line

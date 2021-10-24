@@ -26,16 +26,16 @@ function linkliteral(s,
 
 # [text][ref]
 
-function linkreference(s,
+function linkrefer(s,
 	t, i, ref)
 {
 	t["tail"] = s
 	while(match(t["tail"], /\[[^\]]+\]\[[^ \]]+\]/)){
-		i = index(substr(t["tail"], RSTART, RLENGTH), "][")
-		ref = substr(t["tail"], RSTART+i+1, RLENGTH-i-2)
+		i = index(t["tail"], "][")
+		ref = substr(t["tail"], i+2, RSTART+RLENGTH-i-3)
 		dolink(t, RSTART, RLENGTH,
 		  substr(t["tail"], RSTART+1, i-RSTART-1),
-		  substr(t["tail"], i+2, RSTART+RLENGTH-i-3))
+		  linkref[ref])
 	}
 	return t["head"] t["tail"]
 }
@@ -79,7 +79,7 @@ function convertmedia(s,
 	while (match(tail, /!\[[0-9]+\]/)) {
 		head = head substr(tail, 1, RSTART-1)
 		ref = substr(tail, RSTART+2, RLENGTH-3)
-		head = head getmedia(linkurl[ref], linktxt[ref])
+		head = head getmedia(ref)
 		tail = substr(tail, RSTART+RLENGTH)
 	}
 	return head tail
@@ -142,7 +142,7 @@ function getfold(line, len,
 function printline(prefix, s, len,
 	head, tail, fold, ref, lnk, n, i)
 {
-	len -= length(pref)
+	len -= length(prefix)
 	tail = s
 	for(;;){
 		fold = getfold(tail, len - length(head))
@@ -293,7 +293,7 @@ END{
 		if(sub(/^#c/, "", s)){ printcode(escape(s)); continue }
 		s = backslash(s)
 		s = linkliteral(s)
-		s = linkreference(s)
+		s = linkrefer(s)
 		s = linkinline(s)
 		s = escape(s)
 		s = convertlink(s)
