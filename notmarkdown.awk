@@ -31,22 +31,6 @@ function linkliteral(s,
 	return t["head"] t["tail"]
 }
 
-# [[txtref]]
-
-function linkdouble(s,
-	t, txtref)
-{
-	t["tail"] = s
-	t["head"] = ""
-	while(match(t["tail"], /\[\[[^] ]+\]\]/)){
-		txtref = substr(t["tail"], RSTART + 2, RLENGTH - 4)
-		dolink(t, RSTART, RLENGTH, tolower(txtref),
-		  linkref[tolower(txtref)],
-		  txtref)
-	}
-	return t["head"] t["tail"]
-}
-
 # [text][ref]
 
 function linksimple(s,
@@ -326,7 +310,6 @@ END{
 		s = block[i]
 		if(sub(/^#c/, "", s)){ printcode(escape(s)); continue }
 		s = backslash(s)
-		s = linkdouble(s)
 		s = linksimple(s)
 		s = linkinline(s)
 		s = linkliteral(s)

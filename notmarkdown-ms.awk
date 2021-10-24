@@ -1,5 +1,5 @@
 
-## notmarkdown-html.awk ## html front-end
+## notmarkdown-ms.awk ## troff -ms front-end
 
 function init()
 {

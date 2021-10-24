@@ -22,6 +22,4 @@ install: ${BIN}
 	mkdir -p ${DESTDIR}${PREFIX}/bin
 	cp ${BIN} ${DESTDIR}${PREFIX}/bin
 	mkdir -p ${DESTDIR}${MANPREFIX}/man1
-	cp notmarkdown.1 ${DESTDIR}${MANPREFIX}/man1
-	mkdir -p ${DESTDIR}${MANPREFIX}/man5
-	cp notmarkdown.5 ${DESTDIR}${MANPREFIX}/man5
+	cp notmarkdown.man ${DESTDIR}${MANPREFIX}/man1

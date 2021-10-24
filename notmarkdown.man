@@ -1,0 +1,174 @@
+.TH NOTMARKDOWN 1
+.
+.
+.SH NAME
+.
+notmarkdown-gmi, notmarkdown-gph, notmarkdown-html, notmarkdown-ms, notmarkdown-txt
+- converters from a subset of markdown to different formats
+.
+.
+.SH SYNOPSIS
+.
+.BI notmarkdown- format
+.I file ...
+.
+.
+.SH DESCRIPTION
+.
+.I notmarkdown
+converts an input markdown file to any of the supported formats:
+.
+.IP html
+only page content, not the
+.I <head>
+or
+.IR <body> .
+.
+.IP gph
+the
+.I geomyidae(8)
+format for Gopher documents.
+.
+.IP txt
+plain text, prettified source, useful for proofreading.
+.
+.IP gmi
+gemini index files. See
+.I https://gemini.circumlunar.space/
+.
+.IP ms
+.I troff(1)
+document for the -ms macro package.
+.
+.
+.SH FILE FORMAT
+.
+The
+.I notmarkdown
+format is a subset of the markdown with simpler rules and no nesting:
+.
+.
+.SS Block Syntax
+.
+.IP "Empty lines"
+.EX
+Line of the first block.
+
+Line of the second block.
+.EE
+.
+.IP "Lines with only = or -"
+.EX
+This is a setext-style heading
+==============================
+There may be a blank line above this paragraph or not.
+.EE
+.
+.IP "*, -, +"
+.I Unordered lists:
+Any space before, at least one after.
+.
+.IP "1., 2., 3., ..."
+.I Ordered lists:
+Any space before, at least one after.
+.
+.IP "#, ##, ###, ..."
+.I Headings:
+Any space before, at least one after.
+.
+.IP "[ref]:"
+.I Link reference:
+No space before, at least one after.
+.
+.IP "\et, ```"
+.I Code block:
+Consecutive lines starting with a leading tab, as well as lines between ```
+alone on its line are literal blocks.
+No conversion is done inside the block, and formatting is preserved.
+.
+.IP ">"
+.I Quoted text:
+Unlike markdown, it cannot contain list or any other block syntax, but support
+all inline syntax.
+.
+.
+.SS Inline syntax
+.
+.IP "*text*"
+.I Italic text
+.
+.IP "**text**"
+.I Bold text
+.
+.IP "***text***"
+.I Bold italic text
+.
+.IP "[desc](link)"
+.I Inline link:
+.I link
+with description
+.IR desc .
+.
+.IP "[desc][ref]"
+.I Referenced link:
+Link with description
+.I desc
+refering to
+.IR ref .
+.
+.IP "![alt][ref]"
+.I Referenced image:
+with alt-text
+.I alt
+and refernce
+.I ref
+for source.
+.
+.IP "![alt](link)"
+.I Inline image:
+with alt-text
+.I alt
+and
+.I link
+for source.
+.
+.
+.SH EXAMPLES
+.
+.PP
+To convert an entire website from markdown to multiple formats at once:
+.
+.PP
+.EX
+find . -name "*.md" | while read file; do
+  notmarkdown-html "$file" >${file%.md}.html
+  notmarkdown-gph "$file" >${file%.md}.gph
+  notmarkdown-txt "$file" >${file%.md}.txt
+  notmarkdown-gmi "$file" >${file%.md}.gmi
+  notmarkdown-ms "$file" | troff -ms | tr2post | ps2pdf >${file%.md}.pdf
+done
+.EE
+.
+.PP
+To add a prefix to links on Gopher documents:
+.
+.PP
+.EX
+$ cd /var/gopher
+$ export SERVER=wiki.example.com PREFIX=wiki
+$ notmarkdown-gph wiki/index.md >wiki/index.gph
+$ export SERVER=news.example.com PREFIX=news
+$ notmarkdown-gph news/index.md >news/index.gph
+.EE
+.
+.
+.SH SEE ALSO
+.
+.IR geomyidae(8) ,
+.IR troff(1) ,
+.L http://josuah.net/notmarkdown/
+.
+.
+.SH AUTHORS
+.
+Josuah Demangeon <me@josuah.net>

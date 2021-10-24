@@ -15,8 +15,7 @@ clean:V:
 
 install:V: $bin
 	cp $bin /rc/bin
-	cp notmarkdown.1 /sys/man/1/notmarkdown
-	cp notmarkdown.5 /sys/man/5/notmarkdown
+	cp notmarkdown.man /sys/man/1/notmarkdown
 
 dist:V:
 	mkdir -p $name-$v
