@@ -65,7 +65,7 @@ function hook(t)
 function printquote(s)
 {
 	hook("")
-	print s
+	print "<blockquote>"s"</blockquote>"
 }
 
 function printcode(s)

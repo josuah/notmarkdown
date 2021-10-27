@@ -214,13 +214,6 @@ BEGIN{
 	reg["#6"] = "^###### +"
 }
 
-sub("^> +", ""){
-	new = 1
-	block[++N] = "#q"$0
-	while(getline && sub("^> +", "", $0))
-		block[N] = block[N]" "$0
-}
-
 /^(\t|    )/{
 	new = 1
 	block[++N] = "#c"
@@ -229,6 +222,14 @@ sub("^> +", ""){
 		getline
 	}
 	sub(/\n$/, "", block[N])
+}
+
+sub("^> +", ""){
+	new = 1
+	block[++N] = "#q"$0
+	while(getline > 0 && sub("^> +", "", $0))
+		block[N] = block[N]" "$0
+	next
 }
 
 /^```/{
