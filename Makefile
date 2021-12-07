@@ -1,8 +1,9 @@
+V = 1.0
 PREFIX = /usr/local
 MANPREFIX = ${PREFIX}/man
 
-BIN = notmarkdown-gph notmarkdown-html notmarkdown-gmi \
-  notmarkdown-txt notmarkdown-ms
+BIN =	notmarkdown-gph notmarkdown-html notmarkdown-gmi \
+	notmarkdown-txt notmarkdown-ms
 
 all: ${BIN}
 
@@ -17,8 +18,14 @@ ${BIN}: ${BIN:=.awk} notmarkdown.awk
 clean:
 	rm -f ${BIN}
 
+dist:
+	mkdir -p notmarkdown-$V
+	cp *file *.awk *.md *.man notmarkdown-$V
+	tar cf - notmarkdown-$V | gzip >notmarkdown-$V.tgz
+	rm -r notmarkdown-$V
+
 install: ${BIN}
 	mkdir -p ${DESTDIR}${PREFIX}/bin
 	cp ${BIN} ${DESTDIR}${PREFIX}/bin
 	mkdir -p ${DESTDIR}${MANPREFIX}/man1
-	cp notmarkdown.man ${DESTDIR}${MANPREFIX}/man1
+	cp notmarkdown.man ${DESTDIR}${MANPREFIX}/man1/notmarkdown.1
