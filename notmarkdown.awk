@@ -16,7 +16,7 @@ function linkliteral(s,
 	t)
 {
 	t["tail"] = s
-	while(match(t["tail"], /<[^ >]+>/)){
+	while (match(t["tail"], /<[^ >]+>/)) {
 		dolink(t, RSTART, RLENGTH,
 		  substr(t["tail"], RSTART+1, RLENGTH-2),
 		  substr(t["tail"], RSTART+1, RLENGTH-2))
@@ -30,7 +30,7 @@ function linkrefer(s,
 	t, i, ref)
 {
 	t["tail"] = s
-	while(match(t["tail"], /\[[^\]]+\]\[[^ \]]+\]/)){
+	while (match(t["tail"], /\[[^\]]+\]\[[^ \]]+\]/)) {
 		i = index(t["tail"], "][")
 		ref = substr(t["tail"], i+2, RSTART+RLENGTH-i-3)
 		dolink(t, RSTART, RLENGTH,
@@ -46,7 +46,7 @@ function linkinline(s,
 	t, i)
 {
 	t["tail"] = s
-	while(match(t["tail"], /\[[^\]]+\]\([^ \)]+\)/)){
+	while (match(t["tail"], /\[[^\]]+\]\([^ \)]+\)/)) {
 		i = index(t["tail"], "](")
 		dolink(t, RSTART, RLENGTH,
 		  substr(t["tail"], RSTART+1, i-RSTART-1),
@@ -61,7 +61,7 @@ function convertlink(s,
 	head, tail, ref)
 {
 	tail = s
-	while(match(tail, /\[[0-9]+\]/)){
+	while (match(tail, /\[[0-9]+\]/)) {
 		head = head substr(tail, 1, RSTART-1)
 		ref = substr(tail, RSTART+1, RLENGTH-2)
 		head = head getlink(ref)f
@@ -91,7 +91,7 @@ function convertquoted(s,
 	head, tail)
 {
 	tail = s
-	while(match(tail, /`[^`]*`/)){
+	while (match(tail, /`[^`]*`/)) {
 		head = head substr(tail, 1, RSTART-1)
 		head = head getliteral(substr(tail, RSTART+1, RLENGTH-2))
 		tail = substr(tail, RSTART+RLENGTH)
@@ -105,7 +105,7 @@ function convertbold(s,
 	head, tail)
 {
 	tail = s
-	while(match(tail, "[*][*][^ *][^*]*[^ *][*][*]")){
+	while (match(tail, "[*][*][^ *][^*]*[^ *][*][*]")) {
 		head = head substr(tail, 1, RSTART-1)
 		head = head getbold(substr(tail, RSTART+2, RLENGTH-4))
 		tail = substr(tail, RSTART+RLENGTH)
@@ -119,7 +119,7 @@ function convertitalic(s,
 	head, tail)
 {
 	tail = s
-	while(match(tail, "[*][^ *][^*]*[^ *][*]")){
+	while (match(tail, "[*][^ *][^*]*[^ *][*]")) {
 		head = head substr(tail, 1, RSTART-1)
 		head = head getitalic(substr(tail, RSTART+1, RLENGTH-2))
 		tail = substr(tail, RSTART+RLENGTH)
@@ -131,9 +131,9 @@ function getfold(line, len,
 	head, i)
 {
 	head = substr(line, 1, len+1)
-	if(length(line) >= len)
+	if (length(line) >= len)
 		sub(" *[^ ]*$", "", head)
-	if(length(head) > 0)
+	if (length(head) > 0)
 		return head
 	i = index(line, " ")
 	return (i > 0) ? substr(line, 1, i) : line
@@ -144,9 +144,9 @@ function printline(prefix, s, len,
 {
 	len -= length(prefix)
 	tail = s
-	for(;;){
+	for (;;) {
 		fold = getfold(tail, len - length(head))
-		if(!match(fold, /\[[0-9]+\]/))
+		if (!match(fold, /\[[0-9]+\]/))
 			break
 		ref = substr(tail, RSTART+1, RLENGTH-2)
 		lnk[n++] = ref
@@ -157,9 +157,9 @@ function printline(prefix, s, len,
 	head = head fold
 	tail = substr(tail, length(fold) + 2)
 
-	if(n == 1) printlink(linkurl[ref], prefix head)
-	if(n != 1) print prefix head
-	if(n >= 2) for(i=0; i<n; i++)
+	if (n == 1) printlink(linkurl[ref], prefix head)
+	if (n != 1) print prefix head
+	if (n >= 2) for (i=0; i<n; i++)
 		printlink(linkurl[lnk[i]], " • "linktxt[lnk[i]])
 	return tail
 }
@@ -167,7 +167,7 @@ function printline(prefix, s, len,
 function printblock(prefix1, prefix2, s, len,
 	prefix)
 {
-	for(prefix = prefix1; length(s) > 0; prefix = prefix2)
+	for (prefix = prefix1; length(s) > 0; prefix = prefix2)
 		s = printline(prefix, s, len)
 }
 
@@ -175,7 +175,7 @@ function backslash(s,
 	i)
 {
 	gsub(/\\\\/, "\\e", s)
-	for(i in bs)
+	for (i in bs)
 		gsub("\\\\["bs[i]"]", "\\"i, s)
 	return s
 }
@@ -183,7 +183,7 @@ function backslash(s,
 function debackslash(s,
 	i)
 {
-	for(i in dbs)
+	for (i in dbs)
 		gsub("\\\\"i, dbs[i], s)
 	gsub(/\\e/, "\\", s)
 	return s
@@ -202,7 +202,7 @@ BEGIN{
 	bs["R"] = "("; bs["r"] = ")"; bs["u"] = "_"; bs["q"] = "`"
 	bs["A"] = "<"; bs["a"] = ">"
 
-	for(i in bs) dbs[i] = escape(bs[i])
+	for (i in bs) dbs[i] = escape(bs[i])
 
 	reg["#u"] = "^[-+*] +"
 	reg["#o"] = "^[0-9]+\\. +"
@@ -217,17 +217,18 @@ BEGIN{
 /^(\t|    )/{
 	new = 1
 	block[++N] = "#c"
-	while(sub("^    ", "\t") || /^\t/){
+	while (sub("^    ", "\t") || /^\t/) {
 		block[N] = block[N] substr($0, 2) "\n"
-		getline
+		if (getline <= 0)
+			break
 	}
 	sub(/\n$/, "", block[N])
 }
 
-sub("^> +", ""){
+sub("^> +", "") {
 	new = 1
 	block[++N] = "#q"$0
-	while(getline > 0 && sub("^> +", "", $0))
+	while (getline > 0 && sub("^> +", "", $0))
 		block[N] = block[N]" "$0
 	next
 }
@@ -235,7 +236,7 @@ sub("^> +", ""){
 /^```/{
 	new = 1
 	block[++N] = "#c"
-	while(getline && $0 !~ /^```/)
+	while (getline && $0 !~ /^```/)
 		block[N] = block[N] $0 "\n"
 	sub(/\n$/, "", block[N])
 	next
@@ -253,7 +254,7 @@ sub("^> +", ""){
 	next
 }
 
-match($0, /^\[[^\] ]+\]:/){
+match($0, /^\[[^\] ]+\]:/) {
 	new = 1
 	linkref[tolower(substr($0, RSTART+1, RLENGTH-3))] = $2
 	next
@@ -267,8 +268,8 @@ match($0, /^\[[^\] ]+\]:/){
 {
 	sub("^ *", "")
 	sub(" *$", "")
-	for(i in reg){
-		if(sub(reg[i], i, $0) > 0){
+	for (i in reg) {
+		if (sub(reg[i], i, $0) > 0) {
 			new = 0
 			block[++N] = $0
 			next
@@ -289,9 +290,9 @@ new{
 
 END{
 	init()
-	for(i = 1; i in block; i++){
+	for (i = 1; i in block; i++) {
 		s = block[i]
-		if(sub(/^#c/, "", s)){ printcode(escape(s)); continue }
+		if (sub(/^#c/, "", s)) { printcode(escape(s)); continue }
 		s = backslash(s)
 		s = linkliteral(s)
 		s = linkrefer(s)
@@ -303,16 +304,16 @@ END{
 		s = convertitalic(s)
 		s = convertquoted(s)
 		s = debackslash(s)
-		if(sub(/^#1/, "", s)){ printhead(s, 1); continue }
-		if(sub(/^#2/, "", s)){ printhead(s, 2); continue }
-		if(sub(/^#3/, "", s)){ printhead(s, 3); continue }
-		if(sub(/^#4/, "", s)){ printhead(s, 4); continue }
-		if(sub(/^#5/, "", s)){ printhead(s, 5); continue }
-		if(sub(/^#6/, "", s)){ printhead(s, 6); continue }
-		if(sub(/^#o/, "", s)){ printolist(s); continue }
-		if(sub(/^#u/, "", s)){ printulist(s); continue }
-		if(sub(/^#q/, "", s)){ printquote(s); continue }
-		if(sub(/^#p/, "", s)){ printpar(s); continue }
+		if (sub(/^#1/, "", s)) { printhead(s, 1); continue }
+		if (sub(/^#2/, "", s)) { printhead(s, 2); continue }
+		if (sub(/^#3/, "", s)) { printhead(s, 3); continue }
+		if (sub(/^#4/, "", s)) { printhead(s, 4); continue }
+		if (sub(/^#5/, "", s)) { printhead(s, 5); continue }
+		if (sub(/^#6/, "", s)) { printhead(s, 6); continue }
+		if (sub(/^#o/, "", s)) { printolist(s); continue }
+		if (sub(/^#u/, "", s)) { printulist(s); continue }
+		if (sub(/^#q/, "", s)) { printquote(s); continue }
+		if (sub(/^#p/, "", s)) { printpar(s); continue }
 		fatal("unknown block type: "s)
 	}
 }
