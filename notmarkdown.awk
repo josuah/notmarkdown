@@ -189,6 +189,22 @@ function debackslash(s,
 	return s
 }
 
+function convert(s)
+{
+	s = backslash(s)
+	s = linkliteral(s)
+	s = linkrefer(s)
+	s = linkinline(s)
+	s = escape(s)
+	s = convertmedia(s)
+	s = convertlink(s)
+	s = convertbold(s)
+	s = convertitalic(s)
+	s = convertquoted(s)
+	s = debackslash(s)
+	return s
+}
+
 function fatal(msg)
 {
 	print "error: "msg
@@ -212,6 +228,8 @@ BEGIN {
 	reg["#6"] = "^###### +"
 	reg["#o"] = "^[0-9]+\\. +"
 	reg["#u"] = "^[-+*] +"
+
+	def["#t"] = "^: +"
 }
 
 /^(\t|    )/ {
@@ -275,6 +293,16 @@ match($0, /^\[[^\] ]+\]:/) {
 			next
 		}
 	}	
+
+	for (i in def) {
+		if (sub(def[i], "", $0) > 0) {
+			new = 0
+			def[++N] = $0
+			getline
+			block[N] = i $0
+			next
+		}
+	}	
 }
 
 new {
@@ -291,19 +319,9 @@ new {
 END {
 	init()
 	for (i = 1; i in block; i++) {
-		s = block[i]
+		s = convert(block[i])
+		t = convert(def[i])
 		if (sub(/^#c/, "", s)) { printcode(escape(s)); continue }
-		s = backslash(s)
-		s = linkliteral(s)
-		s = linkrefer(s)
-		s = linkinline(s)
-		s = escape(s)
-		s = convertmedia(s)
-		s = convertlink(s)
-		s = convertbold(s)
-		s = convertitalic(s)
-		s = convertquoted(s)
-		s = debackslash(s)
 		if (sub(/^#1/, "", s)) { printhead(s, 1); continue }
 		if (sub(/^#2/, "", s)) { printhead(s, 2); continue }
 		if (sub(/^#3/, "", s)) { printhead(s, 3); continue }
@@ -313,6 +331,7 @@ END {
 		if (sub(/^#o/, "", s)) { printolist(s); continue }
 		if (sub(/^#u/, "", s)) { printulist(s); continue }
 		if (sub(/^#q/, "", s)) { printquote(s); continue }
+		if (sub(/^#t/, "", s)) { printdef(s, t); continue }
 		if (sub(/^#p/, "", s)) { printpar(s); continue }
 		fatal("unknown block type: "s)
 	}

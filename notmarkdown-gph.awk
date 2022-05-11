@@ -192,6 +192,13 @@ function printquote(s)
 	printblock(" ┊ ", " ┊ ", s, 80)
 }
 
+function printdef(s, d)
+{
+	blankline(1)
+	printblock(" ", " ", d":", 80)
+	printblock(" ┊ ", " ┊ ", s, 80)
+}
+
 function printpar(s)
 {
 	blankline(1)

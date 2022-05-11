@@ -70,6 +70,12 @@ function printquote(s)
 	print ">", s
 }
 
+function printdef(s, d)
+{
+	print d":"
+	print s
+}
+
 function printpar(s)
 {
 	print s

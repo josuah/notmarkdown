@@ -96,6 +96,12 @@ function printhead(s, lv)
 	print ""
 }
 
+function printdef(s, d)
+{
+	hook("")
+	print "<dl><dd>" d "</dd><dt>" s "</dt></dl>"
+}
+
 function printpar(s)
 {
 	hook("")

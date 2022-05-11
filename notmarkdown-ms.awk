@@ -78,6 +78,13 @@ function printhead(s, lv)
 	print s
 }
 
+function printdef(s, d)
+{
+	hook("")
+	print ".IP " d
+	print s
+}
+
 function printpar(s)
 {
 	hook("")
