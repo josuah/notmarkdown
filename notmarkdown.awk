@@ -195,7 +195,7 @@ function fatal(msg)
 	exit(1)
 }
 
-BEGIN{
+BEGIN {
 	new = 1
 
 	bs["S"] = "["; bs["s"] = "]"; bs["w"] = "*"; bs["d"] = "\""
@@ -204,17 +204,17 @@ BEGIN{
 
 	for (i in bs) dbs[i] = escape(bs[i])
 
-	reg["#u"] = "^[-+*] +"
-	reg["#o"] = "^[0-9]+\\. +"
 	reg["#1"] = "^# +"
 	reg["#2"] = "^## +"
 	reg["#3"] = "^### +"
 	reg["#4"] = "^#### +"
 	reg["#5"] = "^##### +"
 	reg["#6"] = "^###### +"
+	reg["#o"] = "^[0-9]+\\. +"
+	reg["#u"] = "^[-+*] +"
 }
 
-/^(\t|    )/{
+/^(\t|    )/ {
 	new = 1
 	block[++N] = "#c"
 	while (sub("^    ", "\t") || /^\t/) {
@@ -233,7 +233,7 @@ sub("^> +", "") {
 	next
 }
 
-/^```/{
+/^```/ {
 	new = 1
 	block[++N] = "#c"
 	while (getline && $0 !~ /^```/)
@@ -242,13 +242,13 @@ sub("^> +", "") {
 	next
 }
 
-!new && /^=+$/{
+!new && /^=+$/ {
 	new = 1
 	block[N] = "#1"substr(block[N], 3)
 	next
 }
 
-!new && /^-+$/{
+!new && /^-+$/ {
 	new = 1
 	block[N] = "#2"substr(block[N], 3)
 	next
@@ -260,7 +260,7 @@ match($0, /^\[[^\] ]+\]:/) {
 	next
 }
 
-/^$/{
+/^$/ {
 	new = 1
 	next
 }
@@ -277,18 +277,18 @@ match($0, /^\[[^\] ]+\]:/) {
 	}	
 }
 
-new{
+new {
 	new = 0
 	block[++N] = "#p"$0
 	next
 }
 
-!new{
+!new {
 	block[N] = block[N]" "$0
 	next
 }
 
-END{
+END {
 	init()
 	for (i = 1; i in block; i++) {
 		s = block[i]

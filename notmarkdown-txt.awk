@@ -56,18 +56,18 @@ function printhead(s, lv,
 		hr = s
 		gsub(".", "━", hr)
 		print hr
-		printblock("", "", s)
+		printblock("", "", s, 80)
 		print hr
 	}else if(lv == 2){
-		printblock("", "", s)
+		printblock("", "", s, 80)
 		gsub(".", "─", s)
 		print s
 	}else if(lv == 3){
-		printblock("═══ ", "", s " ═══")
+		printblock("═══ ", "", s " ═══", 80)
 	}else if(lv == 4){
-		printblock("─── ", "", s " ───")
+		printblock("─── ", "", s " ───", 80)
 	}else{
-		printblock("┈┈┈ ", "", s " ┈┈┈")
+		printblock("┈┈┈ ", "", s " ┈┈┈", 80)
 	}
 }
 
@@ -81,23 +81,23 @@ function printcode(s)
 function printulist(s)
 {
 	blankline(1)
-	printblock(" • ", "   ", s)
+	printblock(" • ", "   ", s, 80)
 }
 
 function printolist(s)
 {
 	blankline(1)
-	printblock("#. ", "   ", s)
+	printblock("#. ", "   ", s, 80)
 }
 
 function printquote(s)
 {
 	blankline(1)
-	printblock(" ┊ ", " ┊ ", s)
+	printblock(" ┊ ", " ┊ ", s, 80)
 }
 
 function printpar(s)
 {
 	blankline(1)
-	printblock(" ", " ", s)
+	printblock(" ", " ", s, 80)
 }

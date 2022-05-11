@@ -72,5 +72,5 @@ function printquote(s)
 
 function printpar(s)
 {
-	printblock(s, "", "", 99999)
+	print s
 }
