@@ -88,18 +88,30 @@ function printolist(s)
 	print "<li>"s"</li>"
 }
 
-function printhead(s, lv)
+function getid(s)
+{
+	s = tolower(s)
+	gsub(/[^a-z0-9]+/, "-", s)
+	if (ID[s]++)
+		s = s "-" ID[s]
+	return s
+}
+
+function printhead(s, lv,
+	id)
 {
 	hook("")
 	print ""
-	print sprintf("<h%d>%s</h%d>", lv, s, lv)
+	id = getid(s)
+	printf("<h%d id=\"%s\">%s <a href=\"#%s\" class=\"permalink\">¶</a></h%d>\n",
+	  lv, id, s, id, lv)
 	print ""
 }
 
 function printdef(s, d)
 {
 	hook("")
-	print "<dl><dd>" d "</dd><dt>" s "</dt></dl>"
+	print "<dl><dt>" d "</dt><dd>" s "</dd></dl>"
 }
 
 function printpar(s)
