@@ -92,6 +92,8 @@ function getid(s)
 {
 	s = tolower(s)
 	gsub(/[^a-z0-9]+/, "-", s)
+	sub(/^-/, "", s)
+	sub(/-$/, "", s)
 	if (ID[s]++)
 		s = s "-" ID[s]
 	return s
