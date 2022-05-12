@@ -1,6 +1,6 @@
 notmarkdown
 ===========
-`git://git.josuah.net/notmarkdown` - [1.0](/notmarkdown/notmarkdown-1.0.tgz)
+`git://git.josuah.net/notmarkdown` - [1.1](/notmarkdown/notmarkdown-1.1.tgz)
 
 [Notmarkdown](/notmarkdown/) is a very simple site generator tool, that
 support a simple subset of markdown in which this document is formatted:

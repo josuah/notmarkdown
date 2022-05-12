@@ -1,7 +1,8 @@
 index.*
-notmarkdown-1.0.tgz
+*.tgz
 notmarkdown-gmi
 notmarkdown-gph
 notmarkdown-html
 notmarkdown-ms
 notmarkdown-txt
+*/

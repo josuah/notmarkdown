@@ -91,6 +91,11 @@ No conversion is done inside the block, and formatting is preserved.
 Unlike markdown, it cannot contain list or any other block syntax, but support
 all inline syntax.
 .
+.IP ":"
+.I Glossary:
+The text on this line will be considered as the defined term.
+The block of line immediately under (without empty line) will be considered as the definition text.
+.
 .
 .SS Inline syntax
 .
