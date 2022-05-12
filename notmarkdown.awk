@@ -319,9 +319,10 @@ new {
 END {
 	init()
 	for (i = 1; i in block; i++) {
+		s = escape(block[i])
+		if (sub(/^#c/, "", s)) { printcode(s); continue }
 		s = convert(block[i])
 		t = convert(def[i])
-		if (sub(/^#c/, "", s)) { printcode(escape(s)); continue }
 		if (sub(/^#1/, "", s)) { printhead(s, 1); continue }
 		if (sub(/^#2/, "", s)) { printhead(s, 2); continue }
 		if (sub(/^#3/, "", s)) { printhead(s, 3); continue }
